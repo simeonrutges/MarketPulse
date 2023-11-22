@@ -2,6 +2,8 @@ package com.example.MarketPulse.model;
 
 import jakarta.persistence.*;
 
+import java.util.Collection;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -13,6 +15,9 @@ public class User {
     private String password;
     private String email;
     private String role; // For simplicity, a String. Could be an enum or a separate entity.
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    private Collection<Role> roles;
 
     public Long getId() {
         return id;
@@ -52,5 +57,13 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public Collection<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Collection<Role> roles) {
+        this.roles = roles;
     }
 }
