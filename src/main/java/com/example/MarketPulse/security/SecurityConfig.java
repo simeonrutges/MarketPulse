@@ -1,6 +1,6 @@
 package com.example.MarketPulse.security;
 
-import com.example.MarketPulse.model.UserRepository;
+import com.example.MarketPulse.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;

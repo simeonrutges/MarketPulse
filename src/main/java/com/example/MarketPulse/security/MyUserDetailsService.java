@@ -1,7 +1,7 @@
 package com.example.MarketPulse.security;
 
 import com.example.MarketPulse.model.User;
-import com.example.MarketPulse.model.UserRepository;
+import com.example.MarketPulse.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
