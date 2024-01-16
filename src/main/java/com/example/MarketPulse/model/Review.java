@@ -11,8 +11,13 @@ public class Review {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User reviewer;
+
+    @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
+
 
     private int rating;
     private String comment;
@@ -47,6 +52,14 @@ public class Review {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public User getReviewer() {
+        return reviewer;
+    }
+
+    public void setReviewer(User reviewer) {
+        this.reviewer = reviewer;
     }
 }
 

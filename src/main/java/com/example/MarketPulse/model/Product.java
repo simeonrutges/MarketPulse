@@ -2,6 +2,8 @@ package com.example.MarketPulse.model;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "products")
 public class Product {
@@ -17,6 +19,14 @@ public class Product {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User seller;
+
+    @OneToMany(mappedBy = "product")
+    private List<Review> reviews;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
 
     public Long getId() {
         return id;
@@ -56,6 +66,22 @@ public class Product {
 
     public void setSeller(User seller) {
         this.seller = seller;
+    }
+
+    public List<Review> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(List<Review> reviews) {
+        this.reviews = reviews;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 }
 

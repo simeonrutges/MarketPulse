@@ -3,6 +3,7 @@ package com.example.MarketPulse.model;
 import jakarta.persistence.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "orders")
@@ -15,6 +16,10 @@ public class Order {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User buyer;
+
+//    @OneToMany(mappedBy = "order")
+    @OneToMany(mappedBy = "order")
+    private List<CartItem> cartItems;
 
     private double totalAmount;
     private Date orderDate;
@@ -58,6 +63,14 @@ public class Order {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public List<CartItem> getCartItems() {
+        return cartItems;
+    }
+
+    public void setCartItems(List<CartItem> cartItems) {
+        this.cartItems = cartItems;
     }
 }
 

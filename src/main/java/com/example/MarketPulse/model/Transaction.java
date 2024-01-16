@@ -2,6 +2,8 @@ package com.example.MarketPulse.model;
 
 import jakarta.persistence.*;
 
+import java.util.Date;
+
 @Entity
 @Table(name = "transactions")
 public class Transaction {
@@ -10,12 +12,21 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "order_id")
-    private Order order;
+    @Column(nullable = false)
+    private Double amount;
 
-    private String paymentDetails;
-    private String paymentStatus;
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date transactionDate;
+
+    private String status; // Bijvoorbeeld: "Pending", "Completed", "Failed"
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user; // De gebruiker die de transactie uitvoert
+
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Order order; // De bestelling gekoppeld aan deze transactie
 
     public Long getId() {
         return id;
@@ -25,28 +36,44 @@ public class Transaction {
         this.id = id;
     }
 
+    public Double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Double amount) {
+        this.amount = amount;
+    }
+
+    public Date getTransactionDate() {
+        return transactionDate;
+    }
+
+    public void setTransactionDate(Date transactionDate) {
+        this.transactionDate = transactionDate;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     public Order getOrder() {
         return order;
     }
 
     public void setOrder(Order order) {
         this.order = order;
-    }
-
-    public String getPaymentDetails() {
-        return paymentDetails;
-    }
-
-    public void setPaymentDetails(String paymentDetails) {
-        this.paymentDetails = paymentDetails;
-    }
-
-    public String getPaymentStatus() {
-        return paymentStatus;
-    }
-
-    public void setPaymentStatus(String paymentStatus) {
-        this.paymentStatus = paymentStatus;
     }
 }
 
