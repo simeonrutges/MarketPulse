@@ -18,6 +18,10 @@ public class CartItem {
     @JoinColumn(name = "product_id")
     private Product product;
 
+    @ManyToOne
+    @JoinColumn(name = "order_id") // Dit is de kolomnaam in de cart_items tabel.
+    private Order order;
+
     private int quantity;
     private double price;
 
@@ -59,6 +63,14 @@ public class CartItem {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(Order order) {
+        this.order = order;
     }
 }
 

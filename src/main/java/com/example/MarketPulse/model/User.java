@@ -3,6 +3,7 @@ package com.example.MarketPulse.model;
 import jakarta.persistence.*;
 
 import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -14,10 +15,22 @@ public class User {
     private String username;
     private String password;
     private String email;
-    private String role; // For simplicity, a String. Could be an enum or a separate entity.
+//    private String role; // For simplicity, a String. Could be an enum or a separate entity.
 
     @ManyToMany(fetch = FetchType.EAGER)
     private Collection<Role> roles;
+
+    @OneToMany(mappedBy = "seller")
+    private List<Product> sellingProducts;
+
+    @OneToMany(mappedBy = "buyer")
+    private List<Order> orders;
+
+    @OneToMany(mappedBy = "reviewer")
+    private List<Review> reviews;
+
+    @OneToOne(mappedBy = "user")
+    private Cart cart;
 
     public Long getId() {
         return id;
@@ -51,19 +64,43 @@ public class User {
         this.email = email;
     }
 
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
-    }
-
     public Collection<Role> getRoles() {
         return roles;
     }
 
     public void setRoles(Collection<Role> roles) {
         this.roles = roles;
+    }
+
+    public List<Product> getSellingProducts() {
+        return sellingProducts;
+    }
+
+    public void setSellingProducts(List<Product> sellingProducts) {
+        this.sellingProducts = sellingProducts;
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
+    }
+
+    public List<Review> getReviews() {
+        return reviews;
+    }
+
+    public void setReviews(List<Review> reviews) {
+        this.reviews = reviews;
+    }
+
+    public Cart getCart() {
+        return cart;
+    }
+
+    public void setCart(Cart cart) {
+        this.cart = cart;
     }
 }
