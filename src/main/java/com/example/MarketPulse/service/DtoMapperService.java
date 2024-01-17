@@ -20,6 +20,7 @@ public class DtoMapperService {
         User user = new User();
         user.setId(userDto.id);
         user.setUsername(userDto.username);
+        user.setPassword(userDto.password);
         user.setEmail(userDto.email);
         // Andere velden toewijzen
 
