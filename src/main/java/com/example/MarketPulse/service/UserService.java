@@ -1,6 +1,8 @@
 package com.example.MarketPulse.service;
 
 import com.example.MarketPulse.dto.UserDto;
+import com.example.MarketPulse.exceptions.UserNotFoundException;
+import com.example.MarketPulse.exceptions.UsernameAlreadyExistsException;
 import com.example.MarketPulse.model.User;
 import com.example.MarketPulse.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -19,27 +21,32 @@ public class UserService {
         this.userRepository = userRepository;
         this.dtoMapperService = dtoMapperService;
     }
-//    public String createUser(UserDto userDto) {
-//        // Implementeer logica om een nieuwe gebruiker aan te maken op basis van UserDto
-//        User newUser = dtoMapperService.dtoToUser(userDto);
-//        userRepository.save(newUser);
-//
-//        return "Done";
 
         public String createUser(UserDto userDto) {
+
+            if (userRepository.existsByUsernameIgnoreCase(userDto.getUsername())) {
+                throw new UsernameAlreadyExistsException("Gebruikersnaam is al in gebruik.");
+            }
+
             User newUser = dtoMapperService.dtoToUser(userDto);
             userRepository.save(newUser);
 
             return newUser.getUsername();
         }
 
-        public UserDto getUserById (Long userId){
-            User user = userRepository.findById(userId).orElse(null);
-            if (user != null) {
-                return dtoMapperService.userToDto(user);
-            }
-            return null;
-        }
+//        public UserDto getUserById (Long userId){
+//            User user = userRepository.findById(userId).orElse(null);
+//            if (user != null) {
+//                return dtoMapperService.userToDto(user);
+//            }
+//            return null;
+//        }
+public UserDto getUserById(Long userId) {
+    // Zoek de gebruiker, bijvoorbeeld met een repository
+    User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
+    return dtoMapperService.userToDto(user);
+}
+
     public User getUserByUsername(String username) {
         // Implementeer logica om een gebruiker op te halen op basis van hun gebruikersnaam
         return userRepository.findByUsername(username)

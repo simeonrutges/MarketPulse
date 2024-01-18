@@ -65,11 +65,11 @@ public class UserController {
             return ResponseEntity.created(location).body(newUsername);
         }
     }
-//    @GetMapping("/{userId}")
-//    public ResponseEntity<UserDto> getUserById(@PathVariable Long userId) {
-//        UserDto userDto = userService.getUserById(userId);
-//        return new ResponseEntity<>(userDto, HttpStatus.OK);
-//    }
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable Long userId) {
+        UserDto userDto = userService.getUserById(userId);
+        return new ResponseEntity<>(userDto, HttpStatus.OK);
+    }
 
 //    @GetMapping("/username/{username}")
 //    public ResponseEntity<UserDto> getUserByUsername(@PathVariable String username) {
