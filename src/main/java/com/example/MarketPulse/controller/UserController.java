@@ -1,23 +1,9 @@
 package com.example.MarketPulse.controller;
-//
-//import com.example.MarketPulse.dto.UserDto;
-//import com.example.MarketPulse.model.User;
-//import com.example.MarketPulse.service.UserService;
-//import jakarta.validation.Valid;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.http.HttpStatus;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.security.crypto.password.PasswordEncoder;
-//import org.springframework.security.crypto.password.PasswordEncoder;
-//import org.springframework.validation.BindingResult;
-//import org.springframework.validation.FieldError;
-//import org.springframework.web.bind.annotation.*;
-//import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-//import java.net.URI;
-//import java.util.List;
 
-
+import com.example.MarketPulse.dto.CartDto;
 import com.example.MarketPulse.dto.UserDto;
+import com.example.MarketPulse.model.Cart;
+import com.example.MarketPulse.service.CartService;
 import com.example.MarketPulse.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -29,17 +15,17 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
 
-
-
 @RestController
 @RequestMapping(value = "/users")
 public class UserController {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final CartService cartService;  // Juiste conventie volgens camelCase
 
-    public UserController(UserService userService, PasswordEncoder encoder) {
+    public UserController(UserService userService, PasswordEncoder encoder, CartService cartService) {
         this.userService = userService;
         this.passwordEncoder = encoder;
+        this.cartService = cartService;
     }
 
     @PostMapping("")
@@ -65,17 +51,17 @@ public class UserController {
             return ResponseEntity.created(location).body(newUsername);
         }
     }
-    @GetMapping("/{userId}")
+    @GetMapping("/id/{userId}")
     public ResponseEntity<UserDto> getUserById(@PathVariable Long userId) {
         UserDto userDto = userService.getUserById(userId);
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
 
-//    @GetMapping("/username/{username}")
-//    public ResponseEntity<UserDto> getUserByUsername(@PathVariable String username) {
-//        UserDto userDto = userService.getUserByUsername(username);
-//        return new ResponseEntity<>(userDto, HttpStatus.OK);
-//    }
+    @GetMapping("/username/{username}")
+    public ResponseEntity<UserDto> getUserByUsername(@PathVariable String username) {
+        UserDto userDto = userService.getUserByUsername(username);
+        return new ResponseEntity<>(userDto, HttpStatus.OK);
+    }
 //
 //    @PutMapping("/{userId}")
 //    public ResponseEntity<UserDto> updateUser(@PathVariable Long userId, @RequestBody UserDto userDto) {
@@ -95,5 +81,23 @@ public class UserController {
 //        return new ResponseEntity<>(userDtos, HttpStatus.OK);
 //    }
 
+
+    // Wijs een winkelwagen toe aan een gebruiker
+    @PutMapping("/{userId}/cart/{cartId}")
+    public ResponseEntity<Void> assignCartToUser(@PathVariable("userId") Long userId,
+                                                 @PathVariable("cartId") Long cartId) {
+        userService.assignCartToUser(userId, cartId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{userId}/cart")
+    public ResponseEntity<CartDto> getUserCart(@PathVariable(value = "userId") Long userId) {
+        CartDto cartDto = cartService.getUserCart(userId);
+        return ResponseEntity.ok(cartDto);
+    }
+
+
 }
+
+
 
