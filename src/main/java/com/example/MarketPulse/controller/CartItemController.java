@@ -9,8 +9,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
-@RequestMapping(value = "/cartItems")
+@RequestMapping(value = "/cart-items")
 public class CartItemController {
     private final CartItemService cartItemService;
 
@@ -29,10 +31,25 @@ public ResponseEntity<CartItemDto> addCartItem(@PathVariable Long userId, @Reque
     CartItemDto createdItem = cartItemService.addCartItem(userId, cartItemDto);
     return ResponseEntity.status(HttpStatus.CREATED).body(createdItem);
 }
+////////
+    // Endpoint voor het verwijderen van een cart item
+    @DeleteMapping("/{itemId}")
+    public ResponseEntity<Void> removeCartItem(@PathVariable Long itemId) {
+        cartItemService.removeCartItem(itemId);
+        return ResponseEntity.ok().build();
+    }
 
+    // Endpoint voor het bijwerken van een cart item
+    @PutMapping("/{itemId}")
+    public ResponseEntity<CartItemDto> updateCartItem(@PathVariable Long itemId, @RequestBody CartItemDto cartItemDto) {
+        CartItemDto updatedItem = cartItemService.updateCartItem(itemId, cartItemDto);
+        return ResponseEntity.ok(updatedItem);
+    }
 
-
-
-
-    // Overige methoden ...
+//    // Endpoint voor gedeeltelijke update van een cart item. later extra doen
+//    @PatchMapping("/{itemId}")
+//    public ResponseEntity<CartItemDto> updateCartItemPartial(@PathVariable Long itemId, @RequestBody Map<String, Object> updates) {
+//        CartItemDto updatedItem = cartItemService.updateCartItemPartial(itemId, updates);
+//        return ResponseEntity.ok(updatedItem);
+//    }
 }

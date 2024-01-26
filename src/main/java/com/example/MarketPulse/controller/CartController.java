@@ -31,5 +31,22 @@ public class CartController {
         return ResponseEntity.ok(cartDto);
     }
 
-    // Overige methoden (toevoegen, bijwerken, verwijderen)...
+    @GetMapping("/users/{userId}/cart")
+    public ResponseEntity<CartDto> getCartByUserId(@PathVariable Long userId) {
+        CartDto cartDto = cartService.getCartDtoByUserId(userId);
+        return ResponseEntity.ok(cartDto);
+    }
+
+
+    // deze methoden nog aanpassen en later doen....
+//    @DeleteMapping("/users/{userId}/cart")
+//    public ResponseEntity<Void> clearCart(@PathVariable Long userId) {
+//        // Implementatie om alle items uit de winkelwagen van de gebruiker te verwijderen
+//    }
+//    @PostMapping("/users/{userId}/cart/checkout")
+//    public ResponseEntity<OrderDto> checkoutCart(@PathVariable Long userId) {
+//        // Implementatie om de winkelwagen af te rekenen en een bestelling te maken
+//    }
+
+
 }

@@ -29,6 +29,12 @@ public class CartService {
         return cartRepository.findById(cartId)
                 .orElseThrow(() -> new ResourceNotFoundException("Winkelwagen niet gevonden met ID: " + cartId));
     }
+    public CartDto getCartDtoByUserId(Long userId) {
+        Cart cart = cartRepository.findByUserId(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Winkelwagen niet gevonden voor gebruiker met ID: " + userId));
+
+        return dtoMapperService.cartToDto(cart);
+    }
 
 
 
