@@ -25,4 +25,11 @@ public class CartService {
         // Gebruik de mapper-service om de Cart-entiteit om te zetten naar een CartDto
         return dtoMapperService.cartToDto(cart);
     }
+    public Cart getCart(Long cartId) {
+        return cartRepository.findById(cartId)
+                .orElseThrow(() -> new ResourceNotFoundException("Winkelwagen niet gevonden met ID: " + cartId));
+    }
+
+
+
 }

@@ -2,13 +2,11 @@ package com.example.MarketPulse.service;
 
 import com.example.MarketPulse.dto.CartDto;
 import com.example.MarketPulse.dto.CartItemDto;
+import com.example.MarketPulse.dto.ProductDto;
 import com.example.MarketPulse.dto.UserDto;
 import com.example.MarketPulse.exceptions.ResourceNotFoundException;
 import com.example.MarketPulse.model.*;
-import com.example.MarketPulse.repository.CartRepository;
-import com.example.MarketPulse.repository.ProductRepository;
-import com.example.MarketPulse.repository.RoleRepository;
-import com.example.MarketPulse.repository.UserRepository;
+import com.example.MarketPulse.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,12 +20,14 @@ public class DtoMapperService {
     private final UserRepository userRepository;
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
 
-    public DtoMapperService(RoleRepository roleRepos, UserRepository userRepository, CartRepository cartRepository, ProductRepository productRepository) {
+    public DtoMapperService(RoleRepository roleRepos, UserRepository userRepository, CartRepository cartRepository, ProductRepository productRepository, CategoryRepository categoryRepository) {
         this.roleRepos = roleRepos;
         this.userRepository = userRepository;
         this.cartRepository = cartRepository;
         this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     public UserDto userToDto(User user) {
@@ -100,6 +100,7 @@ public class DtoMapperService {
                 .map(Role::getRolename)
                 .toArray(String[]::new);
     }
+
     public CartItemDto cartItemToCartItemDto(CartItem cartItem) {
         CartItemDto cartItemDto = new CartItemDto();
         cartItemDto.id = cartItem.getId();
@@ -111,6 +112,7 @@ public class DtoMapperService {
 
         return cartItemDto;
     }
+
     public CartItem cartItemDtoToCartItem(CartItemDto cartItemDto) {
         CartItem cartItem = new CartItem();
         cartItem.setId(cartItemDto.id);
@@ -136,4 +138,42 @@ public class DtoMapperService {
         return cartItem;
     }
 
+    public Product productDtoToProduct(ProductDto productDto) {
+        Product product = new Product();
+        product.setName(productDto.getName());
+        product.setDescription(productDto.getDescription());
+        product.setPrice(productDto.getPrice());
+
+        if (productDto.getSellerId() != null) {
+            User seller = userRepository.findById(productDto.getSellerId())
+                    .orElseThrow(() -> new RuntimeException("Verkoper niet gevonden met ID: " + productDto.getSellerId()));
+            product.setSeller(seller);
+        }
+
+        if (productDto.getCategoryId() != null) {
+            Category category = categoryRepository.findById(productDto.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("Categorie niet gevonden met ID: " + productDto.getCategoryId()));
+            product.setCategory(category);
+        }
+        return product;
+    }
+
+    public ProductDto productToProductDto(Product product) {
+        ProductDto productDto = new ProductDto();
+        productDto.setId(product.getId());
+        productDto.setName(product.getName());
+        productDto.setDescription(product.getDescription());
+        productDto.setPrice(product.getPrice());
+
+        if (product.getSeller() != null) {
+            productDto.setSellerId(product.getSeller().getId());
+        }
+
+        if (product.getCategory() != null) {
+            productDto.setCategoryId(product.getCategory().getId());
+        }
+
+        return productDto;
+    }
 }
+
