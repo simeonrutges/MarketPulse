@@ -33,11 +33,17 @@ public class OrderController {
     }
 
     // 3. Aanmaken van een nieuwe bestelling
-    @PostMapping
-    public ResponseEntity<OrderDto> createOrder(@RequestBody OrderDto orderDto) {
-        OrderDto savedOrderDto = orderService.createOrder(orderDto);
-        return new ResponseEntity<>(savedOrderDto, HttpStatus.CREATED);
+//    @PostMapping
+//    public ResponseEntity<OrderDto> createOrder(@RequestBody OrderDto orderDto) {
+//        OrderDto savedOrderDto = orderService.createOrder(orderDto);
+//        return new ResponseEntity<>(savedOrderDto, HttpStatus.CREATED);
+//    }
+    @PostMapping( "/create/{userId}")
+    public ResponseEntity<OrderDto> createOrder(@PathVariable Long userId) {
+        OrderDto orderDto = orderService.createOrder(userId);
+        return new ResponseEntity<>(orderDto, HttpStatus.CREATED);
     }
+
 
     // 4. Bijwerken van een bestaande bestelling
     @PutMapping("/{orderId}")

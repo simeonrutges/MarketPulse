@@ -8,8 +8,10 @@ import com.example.MarketPulse.model.User;
 import com.example.MarketPulse.repository.CartItemRepository;
 import com.example.MarketPulse.repository.OrderRepository;
 import com.example.MarketPulse.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -44,11 +46,68 @@ public class OrderService {
         return dtoMapperService.orderToOrderDto(order);
     }
 
-    public OrderDto createOrder(OrderDto orderDto) {
-        Order order = dtoMapperService.orderDtoToOrder(orderDto);
-        Order savedOrder = orderRepository.save(order);
-        return dtoMapperService.orderToOrderDto(savedOrder);
+//    public OrderDto createOrder(OrderDto orderDto) {
+//        Order order = dtoMapperService.orderDtoToOrder(orderDto);
+//        Order savedOrder = orderRepository.save(order);
+//        return dtoMapperService.orderToOrderDto(savedOrder);
+//    }
+//@Transactional
+//public OrderDto createOrder(Long userId) {
+//    // Zoek de gebruiker en zijn/haar winkelwagen
+//    User user = userRepository.findById(userId)
+//            .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+//
+//    // Maak een nieuwe Order
+//    Order order = new Order();
+//    order.setBuyer(user);
+//    order.setOrderDate(new Date());
+//    order.setStatus("PENDING");
+//    // ... andere order initialisaties ...
+//
+//    // Haal CartItems op en koppel ze aan de Order
+//    List<CartItem> cartItems = cartItemRepository.findByCartUserId(userId);
+//    for (CartItem item : cartItems) {
+//        item.setOrder(order); // Koppel elk CartItem aan de Order
+//        // Optioneel, afhankelijk van JPA cascade-instellingen, kan deze regel overbodig zijn
+//        cartItemRepository.save(item);
+//    }
+//    order.setCartItems(cartItems); // Voeg de CartItems toe aan de Order
+//
+//    Order savedOrder = orderRepository.save(order);
+//    return dtoMapperService.orderToOrderDto(savedOrder);
+//}
+@Transactional
+public OrderDto createOrder(Long userId) {
+    // Zoek de gebruiker en zijn/haar winkelwagen
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
+
+    // Maak een nieuwe Order
+    Order order = new Order();
+    order.setBuyer(user);
+    order.setOrderDate(new Date());
+    order.setStatus("PENDING");
+    // ... andere order initialisaties ...
+
+    // Haal CartItems op en koppel ze aan de Order
+    List<CartItem> cartItems = cartItemRepository.findByCartUserId(userId);
+    for (CartItem item : cartItems) {
+        item.setOrder(order); // Koppel elk CartItem aan de Order
+        // Optioneel, afhankelijk van JPA cascade-instellingen, kan deze regel overbodig zijn
     }
+    order.setCartItems(cartItems); // Voeg de CartItems toe aan de Order
+
+    // Bereken het totale bedrag voor de Order
+    order.calculateTotalAmount();
+
+    // Sla de Order op
+    Order savedOrder = orderRepository.save(order);
+
+    // Converteer en retourneer OrderDto
+    return dtoMapperService.orderToOrderDto(savedOrder);
+}
+
+
 
     public OrderDto updateOrder(Long orderId, OrderDto orderDto) {
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order niet gevonden met ID: " + orderId));

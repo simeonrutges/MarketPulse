@@ -46,6 +46,24 @@ public class CartItemService {
 //        cartItemRepository.save(cartItem);
 //    }
 
+//    public CartItemDto addCartItem(Long userId, CartItemDto cartItemDto) {
+//        // Zoek de gebruiker en zijn/haar winkelwagen
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new ResourceNotFoundException("Gebruiker niet gevonden met ID: " + userId));
+//
+//        Cart cart = cartRepository.findByUserId(userId)
+//                .orElseGet(() -> createCartForUser(user));
+//
+//        // Converteer CartItemDto naar CartItem entiteit
+//        CartItem cartItem = dtoMapperService.cartItemDtoToCartItem(cartItemDto);
+//        cartItem.setCart(cart);
+//
+//        // Voeg CartItem toe en sla het op
+//        CartItem savedCartItem = cartItemRepository.save(cartItem);
+//        // Converteer het opgeslagen CartItem terug naar CartItemDto
+//        return dtoMapperService.cartItemToCartItemDto(savedCartItem);
+//    }
+
     public CartItemDto addCartItem(Long userId, CartItemDto cartItemDto) {
         // Zoek de gebruiker en zijn/haar winkelwagen
         User user = userRepository.findById(userId)
@@ -54,15 +72,27 @@ public class CartItemService {
         Cart cart = cartRepository.findByUserId(userId)
                 .orElseGet(() -> createCartForUser(user));
 
+        // Haal het product op
+        Product product = productRepository.findById(cartItemDto.getProductId())
+                .orElseThrow(() -> new ResourceNotFoundException("Product niet gevonden met ID: " + cartItemDto.getProductId()));
+
+        // Bereken de totale prijs voor het CartItem
+        double totalPrice = product.getPrice() * cartItemDto.getQuantity();
+
         // Converteer CartItemDto naar CartItem entiteit
         CartItem cartItem = dtoMapperService.cartItemDtoToCartItem(cartItemDto);
         cartItem.setCart(cart);
+        cartItem.setProduct(product);
+        cartItem.setPricePerUnit(product.getPrice()); // Gebruik de berekende prijs
 
         // Voeg CartItem toe en sla het op
         CartItem savedCartItem = cartItemRepository.save(cartItem);
+
         // Converteer het opgeslagen CartItem terug naar CartItemDto
         return dtoMapperService.cartItemToCartItemDto(savedCartItem);
     }
+
+
 
     private Cart createCartForUser(User user) {
         Cart newCart = new Cart();
@@ -105,7 +135,7 @@ public class CartItemService {
             cartItem.setOrder(null); // Als orderId null is, verwijder de koppeling
         }
         cartItem.setQuantity(cartItemDto.getQuantity());
-        cartItem.setPrice(cartItemDto.getPrice());
+        cartItem.setPricePerUnit(cartItemDto.getPricePerUnit());
 
 
         CartItem updatedCartItem = cartItemRepository.save(cartItem);
