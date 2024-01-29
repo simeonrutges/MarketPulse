@@ -17,8 +17,8 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User buyer;
 
-//    @OneToMany(mappedBy = "order")
     @OneToMany(mappedBy = "order")
+//@OneToMany(mappedBy = "order", fetch = FetchType.EAGER)
     private List<CartItem> cartItems;
 
     private double totalAmount;
@@ -71,6 +71,13 @@ public class Order {
 
     public void setCartItems(List<CartItem> cartItems) {
         this.cartItems = cartItems;
+    }
+
+    public void calculateTotalAmount() {
+        this.totalAmount = 0;
+        for (CartItem item : this.cartItems) {
+            this.totalAmount += item.getTotalPrice();
+        }
     }
 }
 

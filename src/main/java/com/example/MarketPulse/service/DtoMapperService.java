@@ -1,15 +1,13 @@
 package com.example.MarketPulse.service;
 
-import com.example.MarketPulse.dto.CartDto;
-import com.example.MarketPulse.dto.CartItemDto;
-import com.example.MarketPulse.dto.ProductDto;
-import com.example.MarketPulse.dto.UserDto;
+import com.example.MarketPulse.dto.*;
 import com.example.MarketPulse.exceptions.ResourceNotFoundException;
 import com.example.MarketPulse.model.*;
 import com.example.MarketPulse.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -21,13 +19,17 @@ public class DtoMapperService {
     private final CartRepository cartRepository;
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
+    private final CartItemRepository cartItemRepository;
+    private final OrderRepository orderRepository;
 
-    public DtoMapperService(RoleRepository roleRepos, UserRepository userRepository, CartRepository cartRepository, ProductRepository productRepository, CategoryRepository categoryRepository) {
+    public DtoMapperService(RoleRepository roleRepos, UserRepository userRepository, CartRepository cartRepository, ProductRepository productRepository, CategoryRepository categoryRepository, CartItemRepository cartItemRepository, OrderRepository orderRepository) {
         this.roleRepos = roleRepos;
         this.userRepository = userRepository;
         this.cartRepository = cartRepository;
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.cartItemRepository = cartItemRepository;
+        this.orderRepository = orderRepository;
     }
 
     public UserDto userToDto(User user) {
@@ -108,35 +110,71 @@ public class DtoMapperService {
         cartItemDto.productId = cartItem.getProduct() != null ? cartItem.getProduct().getId() : null;
         cartItemDto.orderId = cartItem.getOrder() != null ? cartItem.getOrder().getId() : null;
         cartItemDto.quantity = cartItem.getQuantity();
-        cartItemDto.price = cartItem.getPrice();
+        cartItemDto.setPricePerUnit(cartItem.getPricePerUnit());
 
         return cartItemDto;
     }
 
-    public CartItem cartItemDtoToCartItem(CartItemDto cartItemDto) {
-        CartItem cartItem = new CartItem();
-        cartItem.setId(cartItemDto.id);
+//    public CartItem cartItemDtoToCartItem(CartItemDto cartItemDto) {
+//        CartItem cartItem = new CartItem();
+//        cartItem.setId(cartItemDto.id);
+//
+//        if (cartItemDto.cartId != null) {
+//            Cart cart = cartRepository.findById(cartItemDto.cartId)
+//                    .orElseThrow(() -> new ResourceNotFoundException("Cart not found with ID: " + cartItemDto.cartId));
+//            cartItem.setCart(cart);
+//        }
+//
+//        if (cartItemDto.productId != null) {
+//            Product product = productRepository.findById(cartItemDto.productId)
+//                    .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + cartItemDto.productId));
+//            cartItem.setProduct(product);
+//        }
+//
+//        // Optioneel: Order afhandeling, afhankelijk van domeinlogica
+//        // if (cartItemDto.orderId != null) { ... }
+//        if (cartItemDto.orderId != null) {
+//            Order order = orderRepository.findById(cartItemDto.orderId)
+//                    .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + cartItemDto.orderId));
+//            cartItem.setOrder(order);
+//        }
+//
+//        cartItem.setQuantity(cartItemDto.quantity);
+//        cartItem.setPrice(cartItemDto.getPrice());
+//
+//        return cartItem;
+//    }
+public CartItem cartItemDtoToCartItem(CartItemDto cartItemDto) {
+    CartItem cartItem = new CartItem();
+    cartItem.setId(cartItemDto.id);
 
-        if (cartItemDto.cartId != null) {
-            Cart cart = cartRepository.findById(cartItemDto.cartId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Cart not found with ID: " + cartItemDto.cartId));
-            cartItem.setCart(cart);
-        }
-
-        if (cartItemDto.productId != null) {
-            Product product = productRepository.findById(cartItemDto.productId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + cartItemDto.productId));
-            cartItem.setProduct(product);
-        }
-
-        // Optioneel: Order afhandeling, afhankelijk van domeinlogica
-        // if (cartItemDto.orderId != null) { ... }
-
-        cartItem.setQuantity(cartItemDto.quantity);
-        cartItem.setPrice(cartItemDto.price);
-
-        return cartItem;
+    if (cartItemDto.cartId != null) {
+        Cart cart = cartRepository.findById(cartItemDto.cartId)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found with ID: " + cartItemDto.cartId));
+        cartItem.setCart(cart);
     }
+
+    if (cartItemDto.productId != null) {
+        Product product = productRepository.findById(cartItemDto.productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + cartItemDto.productId));
+        cartItem.setProduct(product);
+
+        // Bereken de prijs op basis van productprijs en hoeveelheid
+        double totalPrice = product.getPrice() * cartItemDto.getQuantity();
+        cartItem.setPricePerUnit(totalPrice);
+    }
+
+    if (cartItemDto.orderId != null) {
+        Order order = orderRepository.findById(cartItemDto.orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + cartItemDto.orderId));
+        cartItem.setOrder(order);
+    }
+
+    cartItem.setQuantity(cartItemDto.getQuantity());
+
+    return cartItem;
+}
+
 
     public Product productDtoToProduct(ProductDto productDto) {
         Product product = new Product();
@@ -175,5 +213,55 @@ public class DtoMapperService {
 
         return productDto;
     }
+
+    public OrderDto orderToOrderDto(Order order) {
+        OrderDto orderDto = new OrderDto();
+        orderDto.setId(order.getId());
+        if (order.getBuyer() != null) {
+            orderDto.setBuyerId(order.getBuyer().getId());
+        }
+        if (order.getCartItems() != null) {
+            orderDto.setCartItemIds(order.getCartItems().stream()
+                    .map(CartItem::getId)
+                    .collect(Collectors.toList()));
+        }
+        orderDto.setTotalAmount(order.getTotalAmount());
+        orderDto.setOrderDate(order.getOrderDate());
+        orderDto.setStatus(order.getStatus());
+
+        return orderDto;
+    }
+
+    // Van OrderDto naar Order ---> niet nodig
+    public Order orderDtoToOrder(OrderDto dto) {
+        Order order = new Order();
+
+        if (dto.getId() != null) {
+            order.setId(dto.getId());
+        }
+
+        if (dto.getBuyerId() != null) {
+            User buyer = userRepository.findById(dto.getBuyerId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Gebruiker niet gevonden met ID: " + dto.getBuyerId()));
+            order.setBuyer(buyer);
+        }
+
+        if (dto.getCartItemIds() != null && !dto.getCartItemIds().isEmpty()) {
+            List<CartItem> cartItems = dto.getCartItemIds().stream()
+                    .map(id -> cartItemRepository.findById(id)
+                            .orElseThrow(() -> new ResourceNotFoundException("CartItem niet gevonden met ID: " + id)))
+                    .collect(Collectors.toList());
+            order.setCartItems(cartItems);
+        }
+
+        order.setTotalAmount(dto.getTotalAmount());
+        order.setOrderDate(dto.getOrderDate() != null ? dto.getOrderDate() : new Date());
+        order.setStatus(dto.getStatus());
+
+        return order;
+    }
+
+
+
 }
 

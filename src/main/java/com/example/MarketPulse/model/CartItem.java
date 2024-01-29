@@ -23,7 +23,7 @@ public class CartItem {
     private Order order;
 
     private int quantity;
-    private double price;
+    private double pricePerUnit;
 
     public Long getId() {
         return id;
@@ -57,12 +57,12 @@ public class CartItem {
         this.quantity = quantity;
     }
 
-    public double getPrice() {
-        return price;
+    public double getPricePerUnit() {
+        return pricePerUnit;
     }
 
-    public void setPrice(double price) {
-        this.price = price;
+    public void setPricePerUnit(double pricePerUnit) {
+        this.pricePerUnit = pricePerUnit;
     }
 
     public Order getOrder() {
@@ -71,6 +71,10 @@ public class CartItem {
 
     public void setOrder(Order order) {
         this.order = order;
+    }
+
+    public double getTotalPrice() {
+        return this.pricePerUnit * this.quantity;
     }
 }
 

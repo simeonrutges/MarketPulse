@@ -6,7 +6,8 @@ public class CartItemDto {
     public Long productId; // Id van het product in dit winkelwagenitem
     public Long orderId; // Id van de bestelling waartoe dit item behoort (optioneel)
     public int quantity;
-    public double price;
+    private double pricePerUnit;
+
 
     public Long getId() {
         return id;
@@ -48,11 +49,11 @@ public class CartItemDto {
         this.quantity = quantity;
     }
 
-    public double getPrice() {
-        return price;
+    public double getPricePerUnit() {
+        return pricePerUnit;
     }
 
-    public void setPrice(double price) {
-        this.price = price;
+    public void setPricePerUnit(double pricePerUnit) {
+        this.pricePerUnit = pricePerUnit;
     }
 }
