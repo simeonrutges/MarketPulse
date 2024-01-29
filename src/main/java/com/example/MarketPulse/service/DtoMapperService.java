@@ -232,7 +232,7 @@ public CartItem cartItemDtoToCartItem(CartItemDto cartItemDto) {
         return orderDto;
     }
 
-    // Van OrderDto naar Order
+    // Van OrderDto naar Order ---> niet nodig
     public Order orderDtoToOrder(OrderDto dto) {
         Order order = new Order();
 
