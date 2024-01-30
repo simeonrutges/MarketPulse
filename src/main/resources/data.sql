@@ -18,7 +18,7 @@ INSERT INTO categories (id, name, description) VALUES
 
 INSERT INTO products (id, name, description, price, user_id, category_id) VALUES
                                                                               (1, 'Product 1', 'Beschrijving van Product 1', 10.00, 1, 1),
-                                                                              (2, 'Product 2', 'Beschrijving van Product 2', 15.99, 1, 1),
+                                                                              (2, 'Product 2', 'Beschrijving van Product 2', 15.99, 3, 1),
                                                                               (3, 'Product 3', 'Beschrijving van Product 3', 20.99, 2, 2),
                                                                               (4, 'Product 4', 'Beschrijving van Product 4', 25.99, 2, 2),
                                                                               (5, 'Product 5', 'Beschrijving van Product 5', 30.99, 3, 3);
