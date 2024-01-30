@@ -26,32 +26,33 @@ public class TransactionController {
         return new ResponseEntity<>(createdTransaction, HttpStatus.CREATED);
     }
 
-//    @GetMapping
-//    public ResponseEntity<List<TransactionDto>>getAllTransactions(){
-//        List <TransactionDto> allTransactions = transactionService.getAllTransactions();
-//        return ResponseEntity.ok(allTransactions);
-//    }
+    @GetMapping
+    public ResponseEntity<List<TransactionDto>>getAllTransactions(){
+        List <TransactionDto> allTransactions = transactionService.getAllTransactions();
+        return ResponseEntity.ok(allTransactions);
+    }
 
-//    @GetMapping("/users/{userId}")
-//    public ResponseEntity<List<TransactionDto>> getTransactionsByUserId(@PathVariable Long userId) {
-//        List<TransactionDto> transactionsById = transactionService.getTransactionsByUserId(userId);
-//        return new ResponseEntity<>(transactionsById, HttpStatus.OK);
-//    }
-//    @GetMapping("/{transactionId}")
-//    public ResponseEntity<TransactionDto> getTransactionById(@PathVariable Long transactionId) {
-//        TransactionDto transaction = transactionService.getTransactionById(transactionId);
-//        return ResponseEntity.ok(transaction);
-//    }
-//    @PutMapping("/{transactionId}")
-//    public ResponseEntity<TransactionDto> updateTransaction(@PathVariable Long transactionId, @RequestBody TransactionDto transactionDto) {
-//        TransactionDto updatedTransaction = transactionService.updateTransaction(transactionId, transactionDto);
-//        return ResponseEntity.ok(updatedTransaction);
-//    }
-//    @DeleteMapping("/{transactionId}")
-//    public ResponseEntity<Void> deleteTransaction(@PathVariable Long transactionId) {
-//        transactionService.deleteTransaction(transactionId);
-//        return ResponseEntity.noContent().build();
-//    }
+    @GetMapping("/users/{userId}")
+    public ResponseEntity<List<TransactionDto>> getTransactionsByUserId(@PathVariable Long userId) {
+        List<TransactionDto> transactionsById = transactionService.getTransactionsByUserId(userId);
+        return new ResponseEntity<>(transactionsById, HttpStatus.OK);
+    }
+    @GetMapping("/{transactionId}")
+    public ResponseEntity<TransactionDto> getTransactionById(@PathVariable Long transactionId) {
+        TransactionDto transaction = transactionService.getTransactionById(transactionId);
+        return ResponseEntity.ok(transaction);
+    }
+    @PatchMapping("/{transactionId}")
+    public ResponseEntity<TransactionDto> updateTransaction(@PathVariable Long transactionId, @RequestBody TransactionDto transactionDto) {
+        TransactionDto updatedTransaction = transactionService.updateTransaction(transactionId, transactionDto);
+        return ResponseEntity.ok(updatedTransaction);
+    }
+
+    @DeleteMapping("/{transactionId}")
+    public ResponseEntity<Void> deleteTransaction(@PathVariable Long transactionId) {
+        transactionService.deleteTransaction(transactionId);
+        return ResponseEntity.noContent().build();
+    }
 
 
 //    @GetMapping("/filter")
