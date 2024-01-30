@@ -21,8 +21,9 @@ public class DtoMapperService {
     private final CategoryRepository categoryRepository;
     private final CartItemRepository cartItemRepository;
     private final OrderRepository orderRepository;
+    private final TransactionRepository transactionRepository;
 
-    public DtoMapperService(RoleRepository roleRepos, UserRepository userRepository, CartRepository cartRepository, ProductRepository productRepository, CategoryRepository categoryRepository, CartItemRepository cartItemRepository, OrderRepository orderRepository) {
+    public DtoMapperService(RoleRepository roleRepos, UserRepository userRepository, CartRepository cartRepository, ProductRepository productRepository, CategoryRepository categoryRepository, CartItemRepository cartItemRepository, OrderRepository orderRepository, TransactionRepository transactionRepository) {
         this.roleRepos = roleRepos;
         this.userRepository = userRepository;
         this.cartRepository = cartRepository;
@@ -30,6 +31,7 @@ public class DtoMapperService {
         this.categoryRepository = categoryRepository;
         this.cartItemRepository = cartItemRepository;
         this.orderRepository = orderRepository;
+        this.transactionRepository = transactionRepository;
     }
 
     public UserDto userToDto(User user) {
@@ -262,6 +264,58 @@ public CartItem cartItemDtoToCartItem(CartItemDto cartItemDto) {
     }
 
 
+    public Transaction transactionDtoToTransaction(TransactionDto transactionDto) {
+        Transaction transaction = new Transaction();
 
+        // Omdat id meestal door de database wordt gegenereerd, moet u het wellicht niet instellen.
+        // transaction.setId(transactionDto.getId()); // Alleen nodig als u bestaande transacties bijwerkt.
+
+//        transaction.setAmount(transactionDto.getAmount());
+        if (transactionDto.getOrderId() != null) {
+            Order order = orderRepository.findById(transactionDto.getOrderId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + transactionDto.getOrderId()));
+            transaction.setOrder(order);
+            transaction.setAmount(order.getTotalAmount());  // Stel het transactiebedrag in op het totale bedrag van de order
+        }
+
+        transaction.setTransactionDate(new Date());
+        transaction.setStatus(transactionDto.getStatus());
+
+        // U moet de gebruiker en order entiteiten ophalen en koppelen op basis van de ID's in transactionDto.
+        // Dit vereist toegang tot de gebruikers- en orderrepository's.
+        if (transactionDto.getUserId() != null) {
+            User user = userRepository.findById(transactionDto.getUserId())
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + transactionDto.getUserId()));
+            transaction.setUser(user);
+        }
+
+//        if (transactionDto.getOrderId() != null) {
+//            Order order = orderRepository.findById(transactionDto.getOrderId())
+//                    .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + transactionDto.getOrderId()));
+//            transaction.setOrder(order);
+//        }
+
+        return transaction;
+    }
+
+
+    public TransactionDto transactionToDto(Transaction transaction) {
+        TransactionDto transactionDto = new TransactionDto();
+
+        transactionDto.setId(transaction.getId());
+        transactionDto.setAmount(transaction.getAmount());
+        transactionDto.setTransactionDate(transaction.getTransactionDate());
+        transactionDto.setStatus(transaction.getStatus());
+
+        if (transaction.getUser() != null) {
+            transactionDto.setUserId(transaction.getUser().getId());
+        }
+
+        if (transaction.getOrder() != null) {
+            transactionDto.setOrderId(transaction.getOrder().getId());
+        }
+
+        return transactionDto;
+    }
 }
 
