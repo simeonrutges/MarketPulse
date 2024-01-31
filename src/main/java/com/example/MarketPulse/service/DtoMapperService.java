@@ -317,5 +317,36 @@ public CartItem cartItemDtoToCartItem(CartItemDto cartItemDto) {
 
         return transactionDto;
     }
+
+    public Category categoryDtoToCategory (CategoryDto categoryDto){
+        Category category = new Category();
+
+        category.setName(categoryDto.getName());
+        category.setDescription(categoryDto.getDescription());
+
+        return category;
+    }
+
+
+    public CategoryDto categoryToDto (Category category){
+        CategoryDto categoryDto = new CategoryDto();
+
+        categoryDto.setId(category.getId());
+        categoryDto.setName(category.getName());
+        categoryDto.setDescription(category.getDescription());
+
+        return categoryDto;
+    }
+    public void updateCategoryFromDto(Category category, CategoryDto categoryDto) {
+        if (categoryDto.getName() != null) {
+            category.setName(categoryDto.getName());
+        }
+        if (categoryDto.getDescription() != null) {
+            category.setDescription(categoryDto.getDescription());
+        }
+    }
+
+
+
 }
 
