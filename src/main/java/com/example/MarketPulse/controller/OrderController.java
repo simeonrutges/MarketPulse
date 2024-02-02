@@ -18,14 +18,12 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    // 1. Ophalen van alle bestellingen
     @GetMapping
     public ResponseEntity<List<OrderDto>> getAllOrders() {
         List<OrderDto> orderDtos = orderService.findAllOrders();
         return ResponseEntity.ok(orderDtos);
     }
 
-    // 2. Ophalen van een specifieke bestelling
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDto> getOrderById(@PathVariable Long orderId) {
         OrderDto orderDto = orderService.findOrderById(orderId);
@@ -44,15 +42,12 @@ public class OrderController {
         return new ResponseEntity<>(orderDto, HttpStatus.CREATED);
     }
 
-
-    // 4. Bijwerken van een bestaande bestelling
     @PutMapping("/{orderId}")
     public ResponseEntity<OrderDto> updateOrder(@PathVariable Long orderId, @RequestBody OrderDto orderDto) {
         OrderDto updatedOrderDto = orderService.updateOrder(orderId, orderDto);
         return ResponseEntity.ok(updatedOrderDto);
     }
 
-    // 5. Verwijderen van een bestelling
     @DeleteMapping("/{orderId}")
     public ResponseEntity<Void> deleteOrder(@PathVariable Long orderId) {
         orderService.deleteOrder(orderId);

@@ -16,30 +16,21 @@ import java.util.Map;
 public class CartItemController {
     private final CartItemService cartItemService;
 
-    @Autowired
     public CartItemController(CartItemService cartItemService) {
         this.cartItemService = cartItemService;
     }
 
-//    @PostMapping("/users/{userId}/cart/items")
-//    public ResponseEntity<Void> addCartItem(@PathVariable Long userId, @RequestBody CartItemDto cartItemDto) {
-//        cartItemService.addCartItem(userId, cartItemDto);
-//        return ResponseEntity.ok().build();
-//    }
 @PostMapping("/users/{userId}/cart/items")
 public ResponseEntity<CartItemDto> addCartItem(@PathVariable Long userId, @RequestBody CartItemDto cartItemDto) {
     CartItemDto createdItem = cartItemService.addCartItem(userId, cartItemDto);
     return ResponseEntity.status(HttpStatus.CREATED).body(createdItem);
 }
-////////
-    // Endpoint voor het verwijderen van een cart item
     @DeleteMapping("/{itemId}")
     public ResponseEntity<Void> removeCartItem(@PathVariable Long itemId) {
         cartItemService.removeCartItem(itemId);
         return ResponseEntity.ok().build();
     }
 
-    // Endpoint voor het bijwerken van een cart item
     @PutMapping("/{itemId}")
     public ResponseEntity<CartItemDto> updateCartItem(@PathVariable Long itemId, @RequestBody CartItemDto cartItemDto) {
         CartItemDto updatedItem = cartItemService.updateCartItem(itemId, cartItemDto);

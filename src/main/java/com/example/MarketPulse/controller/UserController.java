@@ -82,7 +82,6 @@ public class UserController {
 //    }
 
 
-    // Wijs een winkelwagen toe aan een gebruiker
     @PutMapping("/{userId}/cart/{cartId}")
     public ResponseEntity<Void> assignCartToUser(@PathVariable("userId") Long userId,
                                                  @PathVariable("cartId") Long cartId) {
