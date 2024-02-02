@@ -112,7 +112,6 @@ public OrderDto createOrder(Long userId) {
     public OrderDto updateOrder(Long orderId, OrderDto orderDto) {
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order niet gevonden met ID: " + orderId));
 
-        // Bijwerken van relevante velden van de Order entiteit
         if (orderDto.getBuyerId() != null) {
             User buyer = userRepository.findById(orderDto.getBuyerId())
                     .orElseThrow(() -> new ResourceNotFoundException("Gebruiker niet gevonden met ID: " + orderDto.getBuyerId()));

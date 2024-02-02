@@ -68,14 +68,27 @@ public class DtoMapperService {
         CartDto cartDto = new CartDto();
         cartDto.id = cart.getId();
 
-        Optional.ofNullable(cart.getUser())
-                .ifPresent(user -> cartDto.userId = user.getId());
+// Lambda:
+//        Optional.ofNullable(cart.getUser())
+//                .ifPresent(user -> cartDto.userId = user.getId());
+//
+//        cartDto.items = Optional.ofNullable(cart.getItems())
+//                .map(items -> items.stream()
+//                        .map(this::cartItemToCartItemDto) // Je moet deze methode implementeren
+//                        .collect(Collectors.toList()))
+//                .orElse(new ArrayList<>());
 
-        cartDto.items = Optional.ofNullable(cart.getItems())
-                .map(items -> items.stream()
-                        .map(this::cartItemToCartItemDto) // Je moet deze methode implementeren
-                        .collect(Collectors.toList()))
-                .orElse(new ArrayList<>());
+        if (cart.getUser() != null) {
+            cartDto.userId = cart.getUser().getId();
+        }
+
+        if (cart.getItems() != null) {
+            cartDto.items = cart.getItems().stream()
+                    .map(this::cartItemToCartItemDto)
+                    .collect(Collectors.toList());
+        } else {
+            cartDto.items = new ArrayList<>(); // Initialiseer met een lege lijst als cart.getItems() null is
+        }
 
         return cartDto;
     }
@@ -85,16 +98,25 @@ public class DtoMapperService {
         cart.setId(cartDto.id);
 
         if (cartDto.userId != null) {
-            User user = new User();
-            user.setId(cartDto.userId);
+            User user = userRepository.findById(cartDto.userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + cartDto.userId));
             cart.setUser(user);
         }
+// Lambda
+//        cart.setItems(Optional.ofNullable(cartDto.items)
+//                .map(items -> items.stream()
+//                        .map(this::cartItemDtoToCartItem) // Je moet deze methode implementeren
+//                        .collect(Collectors.toList()))
+//                .orElse(new ArrayList<>()));
+        if (cartDto.items != null) {
+            List<CartItem> cartItems = cartDto.items.stream()
+                    .map(this::cartItemDtoToCartItem)
+                    .collect(Collectors.toList());
+            cart.setItems(cartItems);
+        } else {
+            cart.setItems(new ArrayList<>());
+        }
 
-        cart.setItems(Optional.ofNullable(cartDto.items)
-                .map(items -> items.stream()
-                        .map(this::cartItemDtoToCartItem) // Je moet deze methode implementeren
-                        .collect(Collectors.toList()))
-                .orElse(new ArrayList<>()));
 
         return cart;
     }
@@ -117,35 +139,6 @@ public class DtoMapperService {
         return cartItemDto;
     }
 
-//    public CartItem cartItemDtoToCartItem(CartItemDto cartItemDto) {
-//        CartItem cartItem = new CartItem();
-//        cartItem.setId(cartItemDto.id);
-//
-//        if (cartItemDto.cartId != null) {
-//            Cart cart = cartRepository.findById(cartItemDto.cartId)
-//                    .orElseThrow(() -> new ResourceNotFoundException("Cart not found with ID: " + cartItemDto.cartId));
-//            cartItem.setCart(cart);
-//        }
-//
-//        if (cartItemDto.productId != null) {
-//            Product product = productRepository.findById(cartItemDto.productId)
-//                    .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + cartItemDto.productId));
-//            cartItem.setProduct(product);
-//        }
-//
-//        // Optioneel: Order afhandeling, afhankelijk van domeinlogica
-//        // if (cartItemDto.orderId != null) { ... }
-//        if (cartItemDto.orderId != null) {
-//            Order order = orderRepository.findById(cartItemDto.orderId)
-//                    .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + cartItemDto.orderId));
-//            cartItem.setOrder(order);
-//        }
-//
-//        cartItem.setQuantity(cartItemDto.quantity);
-//        cartItem.setPrice(cartItemDto.getPrice());
-//
-//        return cartItem;
-//    }
 public CartItem cartItemDtoToCartItem(CartItemDto cartItemDto) {
     CartItem cartItem = new CartItem();
     cartItem.setId(cartItemDto.id);
@@ -186,13 +179,15 @@ public CartItem cartItemDtoToCartItem(CartItemDto cartItemDto) {
 
         if (productDto.getSellerId() != null) {
             User seller = userRepository.findById(productDto.getSellerId())
-                    .orElseThrow(() -> new RuntimeException("Verkoper niet gevonden met ID: " + productDto.getSellerId()));
+//                    .orElseThrow(() -> new RuntimeException("Verkoper niet gevonden met ID: " + productDto.getSellerId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Verkoper niet gevonden met ID: " + productDto.getSellerId()));
             product.setSeller(seller);
         }
 
         if (productDto.getCategoryId() != null) {
             Category category = categoryRepository.findById(productDto.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Categorie niet gevonden met ID: " + productDto.getCategoryId()));
+//                    .orElseThrow(() -> new RuntimeException("Categorie niet gevonden met ID: " + productDto.getCategoryId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Categorie niet gevonden met ID: " + productDto.getCategoryId()));
             product.setCategory(category);
         }
         return product;
