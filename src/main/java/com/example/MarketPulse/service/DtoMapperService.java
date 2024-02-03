@@ -341,23 +341,13 @@ public CartItem cartItemDtoToCartItem(CartItemDto cartItemDto) {
         }
     }
 
-    public Review reviewDtoToReview(ReviewDto reviewDto){
+    public Review reviewDtoToReview(ReviewDto reviewDto, User reviewer, Product product){
         Review review = new Review();
 
         review.setComment(reviewDto.getComment());
         review.setRating(reviewDto.getRating());
-
-        if (reviewDto.getReviewerId() != null) {
-            User reviewer = userRepository.findById(reviewDto.getReviewerId())
-                    .orElseThrow(() -> new RuntimeException("Reviewer not found with ID: " + reviewDto.getReviewerId()));
-            review.setReviewer(reviewer);
-        }
-
-        if (reviewDto.getProductId() != null) {
-            Product product = productRepository.findById(reviewDto.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Product not found with ID: " + reviewDto.getProductId()));
-            review.setProduct(product);
-        }
+        review.setReviewer(reviewer);
+        review.setProduct(product);
 
         return review;
     }

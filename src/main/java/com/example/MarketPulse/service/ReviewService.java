@@ -28,7 +28,12 @@ public class ReviewService {
     }
 
     public ReviewDto createReview(ReviewDto reviewDto) {
-        Review review = dtoMapperService.reviewDtoToReview(reviewDto);
+        User reviewer = userRepository.findById(reviewDto.getReviewerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Reviewer not found with ID: " + reviewDto.getReviewerId()));
+        Product product = productRepository.findById(reviewDto.getProductId())
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + reviewDto.getProductId()));
+
+        Review review = dtoMapperService.reviewDtoToReview(reviewDto, reviewer, product);
         Review savedReview = reviewRepository.save(review);
         return dtoMapperService.reviewToDto(savedReview);
     }
@@ -51,12 +56,6 @@ public class ReviewService {
         Review review = reviewRepository.findById(reviewId)
                 .orElseThrow(() -> new ResourceNotFoundException("Review not found with ID: " + reviewId));
 
-        if (reviewDto.getComment() != null) {
-            review.setComment(reviewDto.getComment());
-        }
-        if (reviewDto.getRating() > 0) {
-            review.setRating(reviewDto.getRating());
-        }
         if (reviewDto.getReviewerId() != null) {
             User reviewer = userRepository.findById(reviewDto.getReviewerId())
                     .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + reviewDto.getReviewerId()));
@@ -66,6 +65,14 @@ public class ReviewService {
             Product product = productRepository.findById(reviewDto.getProductId())
                     .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + reviewDto.getProductId()));
             review.setProduct(product);
+        }
+
+        // Update de review met de nieuwe gegevens
+        if (reviewDto.getComment() != null) {
+            review.setComment(reviewDto.getComment());
+        }
+        if (reviewDto.getRating() > 0) {
+            review.setRating(reviewDto.getRating());
         }
 
         Review updatedReview = reviewRepository.save(review);
