@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -78,11 +77,10 @@ public class OrderService {
 //}
 @Transactional
 public OrderDto createOrder(Long userId) {
-    // Zoek de gebruiker en zijn/haar winkelwagen
+
     User user = userRepository.findById(userId)
             .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + userId));
 
-    // Maak een nieuwe Order
     Order order = new Order();
     order.setBuyer(user);
     order.setOrderDate(new Date());
@@ -95,15 +93,11 @@ public OrderDto createOrder(Long userId) {
         item.setOrder(order); // Koppel elk CartItem aan de Order
         // Optioneel, afhankelijk van JPA cascade-instellingen, kan deze regel overbodig zijn
     }
-    order.setCartItems(cartItems); // Voeg de CartItems toe aan de Order
-
-    // Bereken het totale bedrag voor de Order
+    order.setCartItems(cartItems);
     order.calculateTotalAmount();
 
-    // Sla de Order op
     Order savedOrder = orderRepository.save(order);
 
-    // Converteer en retourneer OrderDto
     return dtoMapperService.orderToOrderDto(savedOrder);
 }
 
@@ -112,7 +106,6 @@ public OrderDto createOrder(Long userId) {
     public OrderDto updateOrder(Long orderId, OrderDto orderDto) {
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order niet gevonden met ID: " + orderId));
 
-        // Bijwerken van relevante velden van de Order entiteit
         if (orderDto.getBuyerId() != null) {
             User buyer = userRepository.findById(orderDto.getBuyerId())
                     .orElseThrow(() -> new ResourceNotFoundException("Gebruiker niet gevonden met ID: " + orderDto.getBuyerId()));
@@ -139,7 +132,6 @@ public OrderDto createOrder(Long userId) {
             order.setStatus(orderDto.getStatus());
         }
 
-
         Order updatedOrder = orderRepository.save(order);
         return dtoMapperService.orderToOrderDto(updatedOrder);
     }
@@ -152,7 +144,7 @@ public OrderDto createOrder(Long userId) {
         List<Order> orders = orderRepository.findByBuyerId(userId);
 
         return orders.stream()
-                        .map(dtoMapperService::orderToOrderDto)
+                .map(dtoMapperService::orderToOrderDto)
                 .collect(Collectors.toList());
-                             }
+    }
 }

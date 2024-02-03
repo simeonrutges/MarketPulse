@@ -58,7 +58,4 @@ public class CategoryController {
         List<ProductDto> products = productService.getProductsByCategory(categoryId);
         return ResponseEntity.ok(products);
     }
-
-
-
 }

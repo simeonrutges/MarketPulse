@@ -8,11 +8,9 @@ import com.example.MarketPulse.model.User;
 import com.example.MarketPulse.repository.OrderRepository;
 import com.example.MarketPulse.repository.TransactionRepository;
 import com.example.MarketPulse.repository.UserRepository;
-import org.hibernate.mapping.Map;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,13 +27,17 @@ public class TransactionService {
         this.orderRepository = orderRepository;
     }
 
-    public TransactionDto createTransaction(TransactionDto transactionDto) {
-        Transaction createdTransaction = dtoMapperService.transactionDtoToTransaction(transactionDto);
-        Transaction savedTransaction = transactionRepository.save(createdTransaction);
+public TransactionDto createTransaction(TransactionDto transactionDto) {
+    Order order = orderRepository.findById(transactionDto.getOrderId())
+            .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + transactionDto.getOrderId()));
+    User user = userRepository.findById(transactionDto.getUserId())
+            .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + transactionDto.getUserId()));
 
-        return dtoMapperService.transactionToDto(savedTransaction);
-    }
+    Transaction createdTransaction = dtoMapperService.transactionDtoToTransaction(transactionDto, order, user);
+    Transaction savedTransaction = transactionRepository.save(createdTransaction);
 
+    return dtoMapperService.transactionToDto(savedTransaction);
+}
 
     public List<TransactionDto> getAllTransactions() {
         List <Transaction> transactions = transactionRepository.findAll();
@@ -73,13 +75,11 @@ public class TransactionService {
             transaction.setStatus(transactionDto.getStatus());
         }
         if (transactionDto.getUserId() != null) {
-            // Zoek de gebruiker op basis van userId en update de relatie
             User user = userRepository.findById(transactionDto.getUserId())
                     .orElseThrow(() -> new ResourceNotFoundException("Gebruiker niet gevonden met ID: " + transactionDto.getUserId()));
             transaction.setUser(user);
         }
         if (transactionDto.getOrderId() != null) {
-            // Zoek de order op basis van orderId en update de relatie
             Order order = orderRepository.findById(transactionDto.getOrderId())
                     .orElseThrow(() -> new ResourceNotFoundException("Order niet gevonden met ID: " + transactionDto.getOrderId()));
             transaction.setOrder(order);
@@ -94,6 +94,4 @@ public class TransactionService {
                 .orElseThrow(()-> new ResourceNotFoundException("Transactie niet gevonden met ID: " + transactionId));
         transactionRepository.delete(transaction);
     }
-
-
 }

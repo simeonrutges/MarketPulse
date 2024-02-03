@@ -17,13 +17,11 @@ public class CartController {
     private final CartService cartService;
     private final DtoMapperService dtoMapperService;
 
-    @Autowired
     public CartController(CartService cartService, DtoMapperService dtoMapperService) {
         this.cartService = cartService;
         this.dtoMapperService = dtoMapperService;
     }
 
-    // Ophalen van een specifieke winkelwagen
     @GetMapping("/{cartId}")
     public ResponseEntity<CartDto> getCart(@PathVariable Long cartId) {
         Cart cart = cartService.getCart(cartId);

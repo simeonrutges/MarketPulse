@@ -8,8 +8,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-
 @Service
 public class CartItemService {
     private final CartItemRepository cartItemRepository;
@@ -18,15 +16,17 @@ public class CartItemService {
     private final DtoMapperService dtoMapperService;
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
+    private final CartService cartService;
 
     @Autowired
-    public CartItemService(CartItemRepository cartItemRepository, CartRepository cartRepository, ProductRepository productRepository, DtoMapperService dtoMapperService, UserRepository userRepository, OrderRepository orderRepository) {
+    public CartItemService(CartItemRepository cartItemRepository, CartRepository cartRepository, ProductRepository productRepository, DtoMapperService dtoMapperService, UserRepository userRepository, OrderRepository orderRepository, CartService cartService) {
         this.cartItemRepository = cartItemRepository;
         this.cartRepository = cartRepository;
         this.productRepository = productRepository;
         this.dtoMapperService = dtoMapperService;
         this.userRepository = userRepository;
         this.orderRepository = orderRepository;
+        this.cartService = cartService;
     }
 
 //    // Methode om een item toe te voegen aan een winkelwagen
@@ -64,42 +64,54 @@ public class CartItemService {
 //        return dtoMapperService.cartItemToCartItemDto(savedCartItem);
 //    }
 
-    public CartItemDto addCartItem(Long userId, CartItemDto cartItemDto) {
-        // Zoek de gebruiker en zijn/haar winkelwagen
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Gebruiker niet gevonden met ID: " + userId));
+//    public CartItemDto addCartItem(Long userId, CartItemDto cartItemDto) {
+//        User user = userRepository.findById(userId)
+//                .orElseThrow(() -> new ResourceNotFoundException("Gebruiker niet gevonden met ID: " + userId));
+//        Cart cart = cartRepository.findByUserId(userId)
+//                .orElseGet(() -> createCartForUser(user));
+//
+//        Product product = productRepository.findById(cartItemDto.getProductId())
+//                .orElseThrow(() -> new ResourceNotFoundException("Product niet gevonden met ID: " + cartItemDto.getProductId()));
+//
+//        // Bereken de totale prijs voor het CartItem
+//        double totalPrice = product.getPrice() * cartItemDto.getQuantity();
+//
+//        // Converteer CartItemDto naar CartItem entiteit
+//        CartItem cartItem = dtoMapperService.cartItemDtoToCartItem(cartItemDto);
+//        cartItem.setCart(cart);
+//        cartItem.setProduct(product);
+//        cartItem.setPricePerUnit(product.getPrice()); // Gebruik de berekende prijs
+//
+//        CartItem savedCartItem = cartItemRepository.save(cartItem);
+//
+//        return dtoMapperService.cartItemToCartItemDto(savedCartItem);
+//    }
+public CartItemDto addCartItem(Long userId, CartItemDto cartItemDto) {
+    User user = userRepository.findById(userId)
+            .orElseThrow(() -> new ResourceNotFoundException("Gebruiker niet gevonden met ID: " + userId));
+    Cart cart = cartRepository.findByUserId(userId)
+            .orElseGet(() -> cartService.createCartForUser(user)); // Aangepast om CartService te gebruiken
+    Product product = productRepository.findById(cartItemDto.getProductId())
+            .orElseThrow(() -> new ResourceNotFoundException("Product niet gevonden met ID: " + cartItemDto.getProductId()));
 
-        Cart cart = cartRepository.findByUserId(userId)
-                .orElseGet(() -> createCartForUser(user));
-
-        // Haal het product op
-        Product product = productRepository.findById(cartItemDto.getProductId())
-                .orElseThrow(() -> new ResourceNotFoundException("Product niet gevonden met ID: " + cartItemDto.getProductId()));
-
-        // Bereken de totale prijs voor het CartItem
-        double totalPrice = product.getPrice() * cartItemDto.getQuantity();
-
-        // Converteer CartItemDto naar CartItem entiteit
-        CartItem cartItem = dtoMapperService.cartItemDtoToCartItem(cartItemDto);
-        cartItem.setCart(cart);
-        cartItem.setProduct(product);
-        cartItem.setPricePerUnit(product.getPrice()); // Gebruik de berekende prijs
-
-        // Voeg CartItem toe en sla het op
-        CartItem savedCartItem = cartItemRepository.save(cartItem);
-
-        // Converteer het opgeslagen CartItem terug naar CartItemDto
-        return dtoMapperService.cartItemToCartItemDto(savedCartItem);
+    // Optioneel: Haal de Order op als cartItemDto.orderId is ingesteld
+    Order order = null;
+    if (cartItemDto.getOrderId() != null) {
+        order = orderRepository.findById(cartItemDto.getOrderId())
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + cartItemDto.getOrderId()));
     }
 
+    CartItem cartItem = dtoMapperService.cartItemDtoToCartItem(cartItemDto, cart, product, order); // Aangepast om extra parameters te accepteren
+    CartItem savedCartItem = cartItemRepository.save(cartItem);
 
+    return dtoMapperService.cartItemToCartItemDto(savedCartItem);
+}
 
-    private Cart createCartForUser(User user) {
-        Cart newCart = new Cart();
-        newCart.setUser(user);
-        return cartRepository.save(newCart);
-    }
-
+//    private Cart createCartForUser(User user) {
+//        Cart newCart = new Cart();
+//        newCart.setUser(user);
+//        return cartRepository.save(newCart);
+//    }
 
     // Overige methoden voor het ophalen, bijwerken, verwijderen van winkelwagenitems ...
 ///////
@@ -107,6 +119,7 @@ public class CartItemService {
     public void removeCartItem(Long itemId) {
         cartItemRepository.deleteById(itemId);
     }
+
     @Transactional
     public CartItemDto updateCartItem(Long itemId, CartItemDto cartItemDto) {
         CartItem cartItem = cartItemRepository.findById(itemId)

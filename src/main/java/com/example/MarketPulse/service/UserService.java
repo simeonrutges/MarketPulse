@@ -44,10 +44,6 @@ public class UserService {
     return dtoMapperService.userToDto(user);
 }
 
-//    public UserDto getUserByUsername(String username) {
-//        return userRepository.findByUsername(username)
-//                .orElseThrow(() -> new EntityNotFoundException("Gebruiker met gebruikersnaam " + username + " niet gevonden."));
-//    }
     public UserDto getUserByUsername(String username) {
 
         User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("Gebruiker met gebruikersnaam " + username + " niet gevonden."));
@@ -56,7 +52,6 @@ public class UserService {
 
 
     public User updateUser(Long userId, UserDto userDto) {
-        // Implementeer logica om een bestaande gebruiker bij te werken met behulp van UserDto
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Gebruiker met ID " + userId + " niet gevonden."));
 
@@ -84,5 +79,4 @@ public void assignCartToUser(Long userId, Long cartId) {
     user.setCart(cart);
     userRepository.save(user);
 }
-
-    }
+}

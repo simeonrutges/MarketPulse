@@ -20,7 +20,7 @@ import java.net.URI;
 public class UserController {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
-    private final CartService cartService;  // Juiste conventie volgens camelCase
+    private final CartService cartService;
 
     public UserController(UserService userService, PasswordEncoder encoder, CartService cartService) {
         this.userService = userService;
@@ -82,7 +82,6 @@ public class UserController {
 //    }
 
 
-    // Wijs een winkelwagen toe aan een gebruiker
     @PutMapping("/{userId}/cart/{cartId}")
     public ResponseEntity<Void> assignCartToUser(@PathVariable("userId") Long userId,
                                                  @PathVariable("cartId") Long cartId) {
@@ -95,8 +94,6 @@ public class UserController {
         CartDto cartDto = cartService.getUserCart(userId);
         return ResponseEntity.ok(cartDto);
     }
-
-
 }
 
 

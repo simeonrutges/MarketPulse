@@ -1,7 +1,6 @@
 package com.example.MarketPulse.service;
 
 import com.example.MarketPulse.dto.*;
-import com.example.MarketPulse.exceptions.ResourceNotFoundException;
 import com.example.MarketPulse.model.*;
 import com.example.MarketPulse.repository.*;
 import org.springframework.stereotype.Service;
@@ -15,23 +14,9 @@ import java.util.stream.Collectors;
 @Service
 public class DtoMapperService {
     private final RoleRepository roleRepos;
-    private final UserRepository userRepository;
-    private final CartRepository cartRepository;
-    private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
-    private final CartItemRepository cartItemRepository;
-    private final OrderRepository orderRepository;
-    private final TransactionRepository transactionRepository;
 
-    public DtoMapperService(RoleRepository roleRepos, UserRepository userRepository, CartRepository cartRepository, ProductRepository productRepository, CategoryRepository categoryRepository, CartItemRepository cartItemRepository, OrderRepository orderRepository, TransactionRepository transactionRepository) {
+    public DtoMapperService(RoleRepository roleRepos) {
         this.roleRepos = roleRepos;
-        this.userRepository = userRepository;
-        this.cartRepository = cartRepository;
-        this.productRepository = productRepository;
-        this.categoryRepository = categoryRepository;
-        this.cartItemRepository = cartItemRepository;
-        this.orderRepository = orderRepository;
-        this.transactionRepository = transactionRepository;
     }
 
     public UserDto userToDto(User user) {
@@ -47,12 +32,10 @@ public class DtoMapperService {
 
     public User dtoToUser(UserDto userDto) {
         User user = new User();
-
         user.setId(userDto.id);
         user.setUsername(userDto.username);
         user.setPassword(userDto.password);
         user.setEmail(userDto.email);
-
         List<Role> userRoles = new ArrayList<>();
         for (String rolename : userDto.roles) {
             Optional<Role> or = roleRepos.findById(rolename);
@@ -68,33 +51,36 @@ public class DtoMapperService {
         CartDto cartDto = new CartDto();
         cartDto.id = cart.getId();
 
-        Optional.ofNullable(cart.getUser())
-                .ifPresent(user -> cartDto.userId = user.getId());
+// Lambda:
+//        Optional.ofNullable(cart.getUser())
+//                .ifPresent(user -> cartDto.userId = user.getId());
+//
+//        cartDto.items = Optional.ofNullable(cart.getItems())
+//                .map(items -> items.stream()
+//                        .map(this::cartItemToCartItemDto) // Je moet deze methode implementeren
+//                        .collect(Collectors.toList()))
+//                .orElse(new ArrayList<>());
 
-        cartDto.items = Optional.ofNullable(cart.getItems())
-                .map(items -> items.stream()
-                        .map(this::cartItemToCartItemDto) // Je moet deze methode implementeren
-                        .collect(Collectors.toList()))
-                .orElse(new ArrayList<>());
+        if (cart.getUser() != null) {
+            cartDto.userId = cart.getUser().getId();
+        }
+
+        if (cart.getItems() != null) {
+            cartDto.items = cart.getItems().stream()
+                    .map(this::cartItemToCartItemDto)
+                    .collect(Collectors.toList());
+        } else {
+            cartDto.items = new ArrayList<>(); // Initialiseer met een lege lijst als cart.getItems() null is
+        }
 
         return cartDto;
     }
 
-    public Cart dtoToCart(CartDto cartDto) {
+    public Cart dtoToCart(CartDto cartDto, User user, List<CartItem> cartItems) {
         Cart cart = new Cart();
         cart.setId(cartDto.id);
-
-        if (cartDto.userId != null) {
-            User user = new User();
-            user.setId(cartDto.userId);
-            cart.setUser(user);
-        }
-
-        cart.setItems(Optional.ofNullable(cartDto.items)
-                .map(items -> items.stream()
-                        .map(this::cartItemDtoToCartItem) // Je moet deze methode implementeren
-                        .collect(Collectors.toList()))
-                .orElse(new ArrayList<>()));
+        cart.setUser(user);
+        cart.setItems(cartItems);
 
         return cart;
     }
@@ -117,84 +103,28 @@ public class DtoMapperService {
         return cartItemDto;
     }
 
-//    public CartItem cartItemDtoToCartItem(CartItemDto cartItemDto) {
-//        CartItem cartItem = new CartItem();
-//        cartItem.setId(cartItemDto.id);
-//
-//        if (cartItemDto.cartId != null) {
-//            Cart cart = cartRepository.findById(cartItemDto.cartId)
-//                    .orElseThrow(() -> new ResourceNotFoundException("Cart not found with ID: " + cartItemDto.cartId));
-//            cartItem.setCart(cart);
-//        }
-//
-//        if (cartItemDto.productId != null) {
-//            Product product = productRepository.findById(cartItemDto.productId)
-//                    .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + cartItemDto.productId));
-//            cartItem.setProduct(product);
-//        }
-//
-//        // Optioneel: Order afhandeling, afhankelijk van domeinlogica
-//        // if (cartItemDto.orderId != null) { ... }
-//        if (cartItemDto.orderId != null) {
-//            Order order = orderRepository.findById(cartItemDto.orderId)
-//                    .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + cartItemDto.orderId));
-//            cartItem.setOrder(order);
-//        }
-//
-//        cartItem.setQuantity(cartItemDto.quantity);
-//        cartItem.setPrice(cartItemDto.getPrice());
-//
-//        return cartItem;
-//    }
-public CartItem cartItemDtoToCartItem(CartItemDto cartItemDto) {
-    CartItem cartItem = new CartItem();
-    cartItem.setId(cartItemDto.id);
-
-    if (cartItemDto.cartId != null) {
-        Cart cart = cartRepository.findById(cartItemDto.cartId)
-                .orElseThrow(() -> new ResourceNotFoundException("Cart not found with ID: " + cartItemDto.cartId));
+    public CartItem cartItemDtoToCartItem(CartItemDto cartItemDto, Cart cart, Product product, Order order) {
+        CartItem cartItem = new CartItem();
+        cartItem.setId(cartItemDto.id);
         cartItem.setCart(cart);
-    }
-
-    if (cartItemDto.productId != null) {
-        Product product = productRepository.findById(cartItemDto.productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + cartItemDto.productId));
         cartItem.setProduct(product);
-
-        // Bereken de prijs op basis van productprijs en hoeveelheid
+        cartItem.setOrder(order); // Kan null zijn, afhankelijk van of de order is opgegeven
+        cartItem.setQuantity(cartItemDto.getQuantity());
         double totalPrice = product.getPrice() * cartItemDto.getQuantity();
         cartItem.setPricePerUnit(totalPrice);
+
+        return cartItem;
     }
 
-    if (cartItemDto.orderId != null) {
-        Order order = orderRepository.findById(cartItemDto.orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + cartItemDto.orderId));
-        cartItem.setOrder(order);
-    }
 
-    cartItem.setQuantity(cartItemDto.getQuantity());
-
-    return cartItem;
-}
-
-
-    public Product productDtoToProduct(ProductDto productDto) {
+    public Product productDtoToProduct(ProductDto productDto, User seller, Category category) {
         Product product = new Product();
         product.setName(productDto.getName());
         product.setDescription(productDto.getDescription());
         product.setPrice(productDto.getPrice());
+        product.setSeller(seller);
+        product.setCategory(category);
 
-        if (productDto.getSellerId() != null) {
-            User seller = userRepository.findById(productDto.getSellerId())
-                    .orElseThrow(() -> new RuntimeException("Verkoper niet gevonden met ID: " + productDto.getSellerId()));
-            product.setSeller(seller);
-        }
-
-        if (productDto.getCategoryId() != null) {
-            Category category = categoryRepository.findById(productDto.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Categorie niet gevonden met ID: " + productDto.getCategoryId()));
-            product.setCategory(category);
-        }
         return product;
     }
 
@@ -234,28 +164,10 @@ public CartItem cartItemDtoToCartItem(CartItemDto cartItemDto) {
         return orderDto;
     }
 
-    // Van OrderDto naar Order ---> niet nodig
-    public Order orderDtoToOrder(OrderDto dto) {
+    public Order orderDtoToOrder(OrderDto dto, User buyer ,List<CartItem> cartItems) {
         Order order = new Order();
-
-        if (dto.getId() != null) {
-            order.setId(dto.getId());
-        }
-
-        if (dto.getBuyerId() != null) {
-            User buyer = userRepository.findById(dto.getBuyerId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Gebruiker niet gevonden met ID: " + dto.getBuyerId()));
-            order.setBuyer(buyer);
-        }
-
-        if (dto.getCartItemIds() != null && !dto.getCartItemIds().isEmpty()) {
-            List<CartItem> cartItems = dto.getCartItemIds().stream()
-                    .map(id -> cartItemRepository.findById(id)
-                            .orElseThrow(() -> new ResourceNotFoundException("CartItem niet gevonden met ID: " + id)))
-                    .collect(Collectors.toList());
-            order.setCartItems(cartItems);
-        }
-
+        order.setBuyer(buyer);
+        order.setCartItems(cartItems);
         order.setTotalAmount(dto.getTotalAmount());
         order.setOrderDate(dto.getOrderDate() != null ? dto.getOrderDate() : new Date());
         order.setStatus(dto.getStatus());
@@ -263,45 +175,19 @@ public CartItem cartItemDtoToCartItem(CartItemDto cartItemDto) {
         return order;
     }
 
-
-    public Transaction transactionDtoToTransaction(TransactionDto transactionDto) {
+    public Transaction transactionDtoToTransaction(TransactionDto transactionDto, Order order, User user) {
         Transaction transaction = new Transaction();
-
-        // Omdat id meestal door de database wordt gegenereerd, moet u het wellicht niet instellen.
-        // transaction.setId(transactionDto.getId()); // Alleen nodig als u bestaande transacties bijwerkt.
-
-//        transaction.setAmount(transactionDto.getAmount());
-        if (transactionDto.getOrderId() != null) {
-            Order order = orderRepository.findById(transactionDto.getOrderId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + transactionDto.getOrderId()));
-            transaction.setOrder(order);
-            transaction.setAmount(order.getTotalAmount());  // Stel het transactiebedrag in op het totale bedrag van de order
-        }
-
+        transaction.setOrder(order);
+        transaction.setAmount(order.getTotalAmount());
         transaction.setTransactionDate(new Date());
         transaction.setStatus(transactionDto.getStatus());
-
-        // U moet de gebruiker en order entiteiten ophalen en koppelen op basis van de ID's in transactionDto.
-        // Dit vereist toegang tot de gebruikers- en orderrepository's.
-        if (transactionDto.getUserId() != null) {
-            User user = userRepository.findById(transactionDto.getUserId())
-                    .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + transactionDto.getUserId()));
-            transaction.setUser(user);
-        }
-
-//        if (transactionDto.getOrderId() != null) {
-//            Order order = orderRepository.findById(transactionDto.getOrderId())
-//                    .orElseThrow(() -> new ResourceNotFoundException("Order not found with ID: " + transactionDto.getOrderId()));
-//            transaction.setOrder(order);
-//        }
+        transaction.setUser(user);
 
         return transaction;
     }
 
-
     public TransactionDto transactionToDto(Transaction transaction) {
         TransactionDto transactionDto = new TransactionDto();
-
         transactionDto.setId(transaction.getId());
         transactionDto.setAmount(transaction.getAmount());
         transactionDto.setTransactionDate(transaction.getTransactionDate());
@@ -320,17 +206,14 @@ public CartItem cartItemDtoToCartItem(CartItemDto cartItemDto) {
 
     public Category categoryDtoToCategory (CategoryDto categoryDto){
         Category category = new Category();
-
         category.setName(categoryDto.getName());
         category.setDescription(categoryDto.getDescription());
 
         return category;
     }
 
-
     public CategoryDto categoryToDto (Category category){
         CategoryDto categoryDto = new CategoryDto();
-
         categoryDto.setId(category.getId());
         categoryDto.setName(category.getName());
         categoryDto.setDescription(category.getDescription());
@@ -346,30 +229,18 @@ public CartItem cartItemDtoToCartItem(CartItemDto cartItemDto) {
         }
     }
 
-    public Review reviewDtoToReview(ReviewDto reviewDto){
+    public Review reviewDtoToReview(ReviewDto reviewDto, User reviewer, Product product){
         Review review = new Review();
-
         review.setComment(reviewDto.getComment());
         review.setRating(reviewDto.getRating());
-
-        if (reviewDto.getReviewerId() != null) {
-            User reviewer = userRepository.findById(reviewDto.getReviewerId())
-                    .orElseThrow(() -> new RuntimeException("Reviewer not found with ID: " + reviewDto.getReviewerId()));
-            review.setReviewer(reviewer);
-        }
-
-        if (reviewDto.getProductId() != null) {
-            Product product = productRepository.findById(reviewDto.getProductId())
-                    .orElseThrow(() -> new RuntimeException("Product not found with ID: " + reviewDto.getProductId()));
-            review.setProduct(product);
-        }
+        review.setReviewer(reviewer);
+        review.setProduct(product);
 
         return review;
     }
 
     public ReviewDto reviewToDto(Review review){
         ReviewDto reviewDto = new ReviewDto();
-
         reviewDto.setId(review.getId());
         reviewDto.setComment(review.getComment());
         reviewDto.setRating(review.getRating());
@@ -383,6 +254,5 @@ public CartItem cartItemDtoToCartItem(CartItemDto cartItemDto) {
 
         return reviewDto;
     }
-
 }
 
