@@ -28,17 +28,14 @@ public class AuthController {
         UsernamePasswordAuthenticationToken up =
                 new UsernamePasswordAuthenticationToken(authDto.username, authDto.password);
 
-
         try {
             Authentication auth = authManager.authenticate(up);
 
             UserDetails ud = (UserDetails) auth.getPrincipal();
             String token = jwtService.generateToken(ud);
 
-
             return ResponseEntity.ok()
                     .body(token);
-
         }
         catch (AuthenticationException ex) {
             return new ResponseEntity(ex.getMessage(), HttpStatus.UNAUTHORIZED);

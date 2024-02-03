@@ -30,7 +30,7 @@ public class OrderController {
         return ResponseEntity.ok(orderDto);
     }
 
-    // 3. Aanmaken van een nieuwe bestelling
+    //  Aanmaken van een nieuwe bestelling
 //    @PostMapping
 //    public ResponseEntity<OrderDto> createOrder(@RequestBody OrderDto orderDto) {
 //        OrderDto savedOrderDto = orderService.createOrder(orderDto);

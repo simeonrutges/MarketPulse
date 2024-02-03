@@ -46,7 +46,7 @@ public class ReviewController {
         reviewService.deleteReview(reviewId);
         return ResponseEntity.noContent().build();
     }
-    // extra methoden
+
     @GetMapping("/products/{productId}")
     public ResponseEntity<List<ReviewDto>> getReviewsByProduct(@PathVariable Long productId) {
         List<ReviewDto> reviews = reviewService.findReviewsByProductId(productId);

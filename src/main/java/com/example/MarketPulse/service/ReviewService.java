@@ -66,8 +66,6 @@ public class ReviewService {
                     .orElseThrow(() -> new ResourceNotFoundException("Product not found with ID: " + reviewDto.getProductId()));
             review.setProduct(product);
         }
-
-        // Update de review met de nieuwe gegevens
         if (reviewDto.getComment() != null) {
             review.setComment(reviewDto.getComment());
         }

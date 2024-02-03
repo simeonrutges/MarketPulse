@@ -28,8 +28,12 @@ public class ProductService {
     }
 
     public ProductDto createProduct(ProductDto productDto) {
-        Product product = dtoMapperService.productDtoToProduct(productDto);
+        User seller = userRepository.findById(productDto.getSellerId())
+                .orElseThrow(() -> new ResourceNotFoundException("Seller not found with ID: " + productDto.getSellerId()));
+        Category category = categoryRepository.findById(productDto.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with ID: " + productDto.getCategoryId()));
 
+        Product product = dtoMapperService.productDtoToProduct(productDto, seller, category);
         Product savedProduct = productRepository.save(product);
 
         return dtoMapperService.productToProductDto(savedProduct);

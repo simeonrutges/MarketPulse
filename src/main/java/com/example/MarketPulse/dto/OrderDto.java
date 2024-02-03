@@ -5,7 +5,7 @@ import java.util.List;
 
 public class OrderDto {
         public Long id;
-        public Long buyerId; // Id van de koper van de bestelling
+        public Long buyerId;
         public List<Long> cartItemIds; // Id's van de items in de winkelwagen van de bestelling
         public double totalAmount;
         private Date orderDate;
