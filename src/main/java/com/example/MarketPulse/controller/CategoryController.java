@@ -5,6 +5,7 @@ import com.example.MarketPulse.dto.ProductDto;
 import com.example.MarketPulse.model.Category;
 import com.example.MarketPulse.service.CategoryService;
 import com.example.MarketPulse.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class CategoryController {
     }
 
     @PostMapping
-    public ResponseEntity<CategoryDto> createCategory(@RequestBody CategoryDto categoryDto) {
+    public ResponseEntity<CategoryDto> createCategory(@Valid @RequestBody CategoryDto categoryDto) {
         CategoryDto createdCategory = categoryService.createCategory(categoryDto);
 
         return new ResponseEntity<>(createdCategory, HttpStatus.CREATED);
@@ -48,7 +49,7 @@ public class CategoryController {
     }
 
     @PutMapping("/{categoryId}")
-    public ResponseEntity<CategoryDto>updateCategory(@PathVariable Long categoryId, @RequestBody CategoryDto categoryDto){
+    public ResponseEntity<CategoryDto>updateCategory(@Valid @PathVariable Long categoryId, @RequestBody CategoryDto categoryDto){
         CategoryDto updatedCategory = categoryService.updateCategory(categoryId, categoryDto);
         return ResponseEntity.ok(updatedCategory);
     }

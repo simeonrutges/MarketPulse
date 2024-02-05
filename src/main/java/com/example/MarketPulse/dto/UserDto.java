@@ -1,17 +1,28 @@
 package com.example.MarketPulse.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 import java.util.List;
 
 public class UserDto {
         public Long id;
+        @NotBlank(message = "Gebruikersnaam mag niet leeg zijn")
+        @Size(min = 3, max = 50, message = "Gebruikersnaam moet tussen 3 en 50 tekens lang zijn")
         public String username;
+        @NotBlank(message = "E-mail mag niet leeg zijn")
+        @Email(message = "Ongeldig e-mailformaat")
         public String email;
+        @NotBlank(message = "Wachtwoord moet tussen de 6 en 30 tekens bevatten")
+        @Size(min = 6, max = 30)
         public String password;
-        public List<String> roles; // Hier zou je de rollen als strings kunnen opslaan
+
+        public List<String> roles;
         public List<Long> sellingProductIds; // Id's van de producten die de gebruiker verkoopt
         public List<Long> orderIds; // Id's van de bestellingen van de gebruiker
         public List<Long> reviewIds; // Id's van de reviews van de gebruiker
-        public Long cartId; // Id van de winkelwagen van de gebruiker
+        public Long cartId;
 
         public Long getId() {
                 return id;
