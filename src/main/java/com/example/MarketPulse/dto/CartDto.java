@@ -1,9 +1,12 @@
 package com.example.MarketPulse.dto;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 
 public class CartDto {
     public Long id;
+    @NotNull(message = "Gebruikers-ID mag niet null zijn")
     public Long userId; // Id van de gebruiker aan wie deze winkelwagen toebehoort
     public List<CartItemDto> items; // Lijst van winkelwagenitems
 

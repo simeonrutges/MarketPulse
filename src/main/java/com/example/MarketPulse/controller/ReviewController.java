@@ -2,6 +2,7 @@ package com.example.MarketPulse.controller;
 
 import com.example.MarketPulse.dto.ReviewDto;
 import com.example.MarketPulse.service.ReviewService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,7 @@ public class ReviewController {
     }
 
     @PostMapping
-    public ResponseEntity<ReviewDto> createReview(@RequestBody ReviewDto reviewDto){
+    public ResponseEntity<ReviewDto> createReview(@Valid @RequestBody ReviewDto reviewDto){
         ReviewDto createdReview = reviewService.createReview(reviewDto);
         return new ResponseEntity<>(createdReview, HttpStatus.CREATED);
     }
@@ -36,7 +37,7 @@ public class ReviewController {
     }
 
     @PutMapping("/{reviewId}")
-    public ResponseEntity<ReviewDto>updateReview(@PathVariable Long reviewId, @RequestBody ReviewDto reviewDto){
+    public ResponseEntity<ReviewDto>updateReview(@Valid @PathVariable Long reviewId, @RequestBody ReviewDto reviewDto){
         ReviewDto updatedReviewDto = reviewService.updateReview(reviewId,reviewDto);
         return ResponseEntity.ok(updatedReviewDto);
     }

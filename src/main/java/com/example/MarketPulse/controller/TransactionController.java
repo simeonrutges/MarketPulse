@@ -3,6 +3,7 @@ package com.example.MarketPulse.controller;
 import com.example.MarketPulse.dto.TransactionDto;
 import com.example.MarketPulse.model.Transaction;
 import com.example.MarketPulse.service.TransactionService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class TransactionController {
     }
 
     @PostMapping
-    public ResponseEntity<TransactionDto> createTransaction (@RequestBody TransactionDto transactionDto){
+    public ResponseEntity<TransactionDto> createTransaction (@Valid @RequestBody TransactionDto transactionDto){
         TransactionDto createdTransaction = transactionService.createTransaction(transactionDto);
         return new ResponseEntity<>(createdTransaction, HttpStatus.CREATED);
     }
@@ -43,7 +44,7 @@ public class TransactionController {
         return ResponseEntity.ok(transaction);
     }
     @PatchMapping("/{transactionId}")
-    public ResponseEntity<TransactionDto> updateTransaction(@PathVariable Long transactionId, @RequestBody TransactionDto transactionDto) {
+    public ResponseEntity<TransactionDto> updateTransaction(@Valid @PathVariable Long transactionId, @RequestBody TransactionDto transactionDto) {
         TransactionDto updatedTransaction = transactionService.updateTransaction(transactionId, transactionDto);
         return ResponseEntity.ok(updatedTransaction);
     }

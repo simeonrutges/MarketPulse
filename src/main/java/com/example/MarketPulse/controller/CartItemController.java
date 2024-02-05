@@ -4,6 +4,7 @@ import com.example.MarketPulse.dto.CartItemDto;
 import com.example.MarketPulse.model.CartItem;
 import com.example.MarketPulse.service.CartItemService;
 import com.example.MarketPulse.service.DtoMapperService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ public class CartItemController {
     }
 
 @PostMapping("/users/{userId}/cart/items")
-public ResponseEntity<CartItemDto> addCartItem(@PathVariable Long userId, @RequestBody CartItemDto cartItemDto) {
+public ResponseEntity<CartItemDto> addCartItem(@Valid @PathVariable Long userId, @RequestBody CartItemDto cartItemDto) {
     CartItemDto createdItem = cartItemService.addCartItem(userId, cartItemDto);
     return ResponseEntity.status(HttpStatus.CREATED).body(createdItem);
 }
@@ -32,7 +33,7 @@ public ResponseEntity<CartItemDto> addCartItem(@PathVariable Long userId, @Reque
     }
 
     @PutMapping("/{itemId}")
-    public ResponseEntity<CartItemDto> updateCartItem(@PathVariable Long itemId, @RequestBody CartItemDto cartItemDto) {
+    public ResponseEntity<CartItemDto> updateCartItem(@Valid @PathVariable Long itemId, @RequestBody CartItemDto cartItemDto) {
         CartItemDto updatedItem = cartItemService.updateCartItem(itemId, cartItemDto);
         return ResponseEntity.ok(updatedItem);
     }

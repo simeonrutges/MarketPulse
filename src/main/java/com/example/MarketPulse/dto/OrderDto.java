@@ -1,14 +1,23 @@
 package com.example.MarketPulse.dto;
 
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+
 import java.util.Date;
 import java.util.List;
 
 public class OrderDto {
         public Long id;
+        @NotNull(message = "Koper ID mag niet null zijn")
         public Long buyerId;
+        @NotEmpty(message = "Winkelwagen items mogen niet leeg zijn")
         public List<Long> cartItemIds; // Id's van de items in de winkelwagen van de bestelling
+        @Positive(message = "Totale bedrag moet positief zijn")
         public double totalAmount;
+        @NotNull(message = "Orderdatum mag niet null zijn")
         private Date orderDate;
+        @NotNull
         public String status;
 
         public Long getId() {

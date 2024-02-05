@@ -2,6 +2,7 @@ package com.example.MarketPulse.controller;
 
 import com.example.MarketPulse.dto.OrderDto;
 import com.example.MarketPulse.service.OrderService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -37,13 +38,13 @@ public class OrderController {
 //        return new ResponseEntity<>(savedOrderDto, HttpStatus.CREATED);
 //    }
     @PostMapping( "/create/{userId}")
-    public ResponseEntity<OrderDto> createOrder(@PathVariable Long userId) {
+    public ResponseEntity<OrderDto> createOrder(@Valid @PathVariable Long userId) {
         OrderDto orderDto = orderService.createOrder(userId);
         return new ResponseEntity<>(orderDto, HttpStatus.CREATED);
     }
 
     @PutMapping("/{orderId}")
-    public ResponseEntity<OrderDto> updateOrder(@PathVariable Long orderId, @RequestBody OrderDto orderDto) {
+    public ResponseEntity<OrderDto> updateOrder(@Valid @PathVariable Long orderId, @RequestBody OrderDto orderDto) {
         OrderDto updatedOrderDto = orderService.updateOrder(orderId, orderDto);
         return ResponseEntity.ok(updatedOrderDto);
     }

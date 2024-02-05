@@ -11,6 +11,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -51,25 +52,41 @@ public class UserService {
     }
 
 
-    public User updateUser(Long userId, UserDto userDto) {
+    public UserDto updateUser(Long userId, UserDto userDto) {
         User existingUser = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("Gebruiker met ID " + userId + " niet gevonden."));
 
-        // Voer hier de bijwerkingslogica uit op basis van userDto en update existingUser
+        if (userDto.getUsername() != null) {
+            existingUser.setUsername(userDto.getUsername());
+        }
+        if (userDto.getPassword() != null) {
+            existingUser.setPassword(userDto.getPassword());
+        }
+        if (userDto.getEmail() != null) {
+            existingUser.setEmail(userDto.getEmail());
+        }
 
-        return userRepository.save(existingUser);
+        // Voeg hier nog logica toe voor het bijwerken van rollen, productIds, orderIds, reviewIds, en cartId
+        // Opmerking: Dit zou complexer zijn, afhankelijk van hoe je relaties en eigendom beheert in je domein.
+        // Bijvoorbeeld, het toevoegen/verwijderen van items uit lijsten kan vereisen dat je de huidige staat van de lijsten controleert,
+        // items toevoegt die er nog niet zijn, en items verwijdert die niet langer meegegeven worden.
+
+        User updatedUser = userRepository.save(existingUser);
+
+        return dtoMapperService.userToDto(updatedUser);
     }
 
     public void deleteUser(Long userId) {
-        // Implementeer logica om een gebruiker te verwijderen op basis van hun ID
         userRepository.deleteById(userId);
     }
 
-    public List<User> getAllUsers() {
-        // Implementeer logica om een lijst van alle gebruikers op te halen
-        return userRepository.findAll();
+    public List<UserDto> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(dtoMapperService :: userToDto)
+                .collect(Collectors.toList());
     }
-//    ----
+
 public void assignCartToUser(Long userId, Long cartId) {
     User user = userRepository.findById(userId)
             .orElseThrow(() -> new UserNotFoundException("Gebruiker niet gevonden met ID: " + userId));

@@ -14,6 +14,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping(value = "/users")
@@ -62,25 +63,24 @@ public class UserController {
         UserDto userDto = userService.getUserByUsername(username);
         return new ResponseEntity<>(userDto, HttpStatus.OK);
     }
-//
-//    @PutMapping("/{userId}")
-//    public ResponseEntity<UserDto> updateUser(@PathVariable Long userId, @RequestBody UserDto userDto) {
-//        UserDto updatedUserDto = userService.updateUser(userId, userDto);
-//        return new ResponseEntity<>(updatedUserDto, HttpStatus.OK);
-//    }
-//
-//    @DeleteMapping("/{userId}")
-//    public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
-//        userService.deleteUser(userId);
-//        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//    }
-//
-//    @GetMapping
-//    public ResponseEntity<List<UserDto>> getAllUsers() {
-//        List<UserDto> userDtos = userService.getAllUsers();
-//        return new ResponseEntity<>(userDtos, HttpStatus.OK);
-//    }
 
+    @PatchMapping("/{userId}")
+    public ResponseEntity<UserDto> updateUser(@Valid @PathVariable Long userId, @RequestBody UserDto userDto) {
+        UserDto updatedUserDto = userService.updateUser(userId, userDto);
+        return new ResponseEntity<>(updatedUserDto, HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long userId) {
+        userService.deleteUser(userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<UserDto>> getAllUsers() {
+        List<UserDto> userDtos = userService.getAllUsers();
+        return ResponseEntity.ok(userDtos);
+    }
 
     @PutMapping("/{userId}/cart/{cartId}")
     public ResponseEntity<Void> assignCartToUser(@PathVariable("userId") Long userId,
