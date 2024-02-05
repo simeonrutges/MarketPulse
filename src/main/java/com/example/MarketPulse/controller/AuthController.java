@@ -2,6 +2,7 @@ package com.example.MarketPulse.controller;
 
 import com.example.MarketPulse.dto.AuthDto;
 import com.example.MarketPulse.security.JwtService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;

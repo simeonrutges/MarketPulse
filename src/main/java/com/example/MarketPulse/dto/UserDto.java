@@ -9,13 +9,13 @@ import java.util.List;
 public class UserDto {
         public Long id;
         @NotBlank(message = "Gebruikersnaam mag niet leeg zijn")
-        @Size(min = 3, max = 50, message = "Gebruikersnaam moet tussen 3 en 50 tekens lang zijn")
+        @Size(min = 4, max = 50, message = "Gebruikersnaam moet tussen 4 en 50 tekens lang zijn")
         public String username;
         @NotBlank(message = "E-mail mag niet leeg zijn")
         @Email(message = "Ongeldig e-mailformaat")
         public String email;
-        @NotBlank(message = "Wachtwoord moet tussen de 6 en 30 tekens bevatten")
-        @Size(min = 6, max = 30)
+        @NotBlank(message = "Wachtwoord moet tussen de 8 en 100 tekens bevatten")
+        @Size(min = 8, max = 100)
         public String password;
 
         public List<String> roles;
