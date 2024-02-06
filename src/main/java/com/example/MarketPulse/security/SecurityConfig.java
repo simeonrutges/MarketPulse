@@ -168,11 +168,32 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // Autorisatieregels
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/auth").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/roles").permitAll()
-                        .requestMatchers(HttpMethod.DELETE, "/users/**").hasAuthority("SELLER")
-                        .anyRequest().authenticated()
+//                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
+//                        .requestMatchers(HttpMethod.POST, "/auth").permitAll()
+//                        .requestMatchers(HttpMethod.POST, "/roles").permitAll()
+//                        .requestMatchers(HttpMethod.DELETE, "/users/**").hasAuthority("SELLER")
+//                        .anyRequest().authenticated()
+
+                        // Specifieke pad- en methodecombinaties
+                        .requestMatchers(HttpMethod.POST, "/users").permitAll() // Iedereen kan registreren
+                        .requestMatchers(HttpMethod.POST, "/auth").permitAll() // Iedereen kan inloggen
+
+                        // Specifieke padpatronen voor bepaalde rollen of autoriteiten
+                        .requestMatchers(HttpMethod.DELETE, "/users").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/admin/stats/**").hasRole("ADMIN") // Alternatieve manier om rollen te specificeren
+                                 .requestMatchers(HttpMethod.GET, "/users").hasAuthority("ADMIN")
+
+                        // Rollengebaseerde toegangscontrole voor bepaalde paden
+                        .requestMatchers("/secured/**").authenticated() // Vereist authenticatie voor toegang tot beveiligde paden
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN") // Algemeen admin pad alleen voor ADMIN
+
+                        // Algemene regels
+                        .requestMatchers("/public/**").permitAll() // Publieke paden voor iedereen toegankelijk
+                                .requestMatchers("/users/**").permitAll()
+                                .requestMatchers("/auth/**)").permitAll()
+
+                        .anyRequest().authenticated() // Alle andere verzoeken vereisen authenticatie
+
                 )
                 // JWT Token filter voor authenticatie
                 .addFilterBefore(new JwtRequestFilter(jwtService, userDetailsService()), UsernamePasswordAuthenticationFilter.class);
@@ -180,6 +201,7 @@ public class SecurityConfig {
         // Verdere configuratie zoals noodzakelijk
         return http.build();
     }
+
 
 
 }
