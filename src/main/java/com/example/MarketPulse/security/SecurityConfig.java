@@ -5,11 +5,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,51 +18,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @Configuration
 public class SecurityConfig {
-
-//    private final JwtService jwtService;
-//    private final UserRepository userRepository;
-//    private final UserDetailsService udService;
-//    private final PasswordEncoder passwordEncoder;
-//
-//    public SecurityConfig(JwtService jwtService, UserRepository userRepository, UserDetailsService udService, PasswordEncoder passwordEncoder) {
-//        this.jwtService = jwtService;
-//        this.userRepository = userRepository;
-//        this.udService = udService;
-//        this.passwordEncoder = passwordEncoder;
-//    }
-//
-//    @Bean
-//    public AuthenticationManager authenticationManagerBean(AuthenticationManagerBuilder builder) throws Exception {
-//        builder.userDetailsService(udService).passwordEncoder(passwordEncoder);
-//        return builder.build();
-//    }
-//
-////    @Bean
-//    public UserDetailsService userDetailsService() {
-//        return new MyUserDetailsService(this.userRepository);
-//    }
-//
-////    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
-//
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http
-//                .authorizeHttpRequests((authz) -> authz
-//                        .requestMatchers("/**").permitAll() // Sta alles toe
-//                        .anyRequest().authenticated()
-//                )
-//                .httpBasic(Customizer.withDefaults())
-//                .csrf(AbstractHttpConfigurer::disable) // Schakel CSRF uit
-//                .cors(Customizer.withDefaults()) // Standaard CORS-configuratie
-//                .sessionManagement(session -> session
-//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                );
-//
-//        return http.build();
-//    }
 
     private final JwtService jwtService;
     private final UserRepository userRepository;
@@ -92,48 +45,6 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http
-//                .authorizeHttpRequests((authz) -> authz
-//                        .requestMatchers("/**").permitAll() // Sta alles toe
-//                        .anyRequest().authenticated()
-//                )
-//                .httpBasic(Customizer.withDefaults())
-//                .csrf(AbstractHttpConfigurer::disable) // Schakel CSRF uit
-//                .cors(Customizer.withDefaults()) // Standaard CORS-configuratie
-//                .sessionManagement(session -> session
-//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                );
-//
-//        return http.build();
-//    }
-
-//    @Bean
-//    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-//        http
-//                .authorizeHttpRequests((authz) -> authz
-//                        // Definieer paden en rollen
-//                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
-//                        .requestMatchers(HttpMethod.POST, "/roles").permitAll()
-//                        .requestMatchers(HttpMethod.POST, "/auth").permitAll()
-//                        .requestMatchers(HttpMethod.DELETE, "/users").hasAuthority("ROLE_SELLER")
-////                        .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
-////                        .requestMatchers("/user/**").permitAll()
-////                        .requestMatchers("/management/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_MANAGER")
-//                        // Voor alle andere paden vereis authenticatie
-//                        .anyRequest().authenticated()
-//                )
-//                .httpBasic(Customizer.withDefaults())
-//                .csrf(AbstractHttpConfigurer::disable) // Schakel CSRF uit
-//                .cors(Customizer.withDefaults()) // Standaard CORS-configuratie
-//                .sessionManagement(session -> session
-//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-//                );
-//
-//        return http.build();
 
 //    @Bean
 //    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -168,19 +79,14 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 // Autorisatieregels
                 .authorizeHttpRequests(authz -> authz
-//                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
-//                        .requestMatchers(HttpMethod.POST, "/auth").permitAll()
-//                        .requestMatchers(HttpMethod.POST, "/roles").permitAll()
-//                        .requestMatchers(HttpMethod.DELETE, "/users/**").hasAuthority("SELLER")
-//                        .anyRequest().authenticated()
 
                         // Specifieke pad- en methodecombinaties
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/roles").permitAll()
 
-                        // toegang tot users
-                        .requestMatchers(HttpMethod.DELETE, "/users/**").hasAuthority("ADMIN")
+                                 // toegang tot users
+                                 .requestMatchers(HttpMethod.DELETE, "/users/**").hasAuthority("ADMIN")
                                  .requestMatchers(HttpMethod.GET, "/users").hasAuthority("ADMIN")
                                 // toegangscontrole products
                                 .requestMatchers(HttpMethod.POST, "/products").hasAnyAuthority("ADMIN", "SELLER")
@@ -216,7 +122,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.DELETE, "/reviews/{reviewId}").hasAuthority("ADMIN") // Alleen ADMIN kan reviews verwijderen
 
                                 // Algemene regels
-                                .requestMatchers("/users/**").permitAll()
+//                                .requestMatchers("/users/**").permitAll()
                         .anyRequest().authenticated() // Alle andere verzoeken vereisen authenticatie
                 )
                 // JWT Token filter voor authenticatie
@@ -225,9 +131,6 @@ public class SecurityConfig {
         // Verdere configuratie zoals noodzakelijk
         return http.build();
     }
-
-
-
 }
 
 
