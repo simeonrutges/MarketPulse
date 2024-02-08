@@ -20,6 +20,25 @@ public class ProductDto {
     public Long sellerId;
 //    @NotNull(message = "Categorie ID mag niet null zijn")
     public Long categoryId;
+    public String fileName;
+
+    public byte[] getImageData() {
+        return imageData;
+    }
+
+    public void setImageData(byte[] imageData) {
+        this.imageData = imageData;
+    }
+
+    private byte[] imageData;
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
 
     public Long getId() {
         return id;

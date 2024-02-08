@@ -81,11 +81,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
 
                         // Specifieke pad- en methodecombinaties
+                                .requestMatchers(HttpMethod.POST, "/products/{productId}/uploadImage").hasAuthority("SELLER")
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth").permitAll()
                                 .requestMatchers(HttpMethod.POST, "/roles").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/products/downloadFromDB/**").permitAll()
 
                                  // toegang tot users
+                                 .requestMatchers(HttpMethod.DELETE, "/users/**").hasAnyAuthority("ADMIN", "SELLER")
                                  .requestMatchers(HttpMethod.DELETE, "/users/**").hasAuthority("ADMIN")
                                  .requestMatchers(HttpMethod.GET, "/users").hasAuthority("ADMIN")
                                 // toegangscontrole products

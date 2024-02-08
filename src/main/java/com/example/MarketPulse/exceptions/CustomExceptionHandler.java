@@ -30,5 +30,12 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(apiError, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(ExtensionNotSupportedException.class)
+    public ResponseEntity<ApiError> handleExtensionNotSupportedException(ExtensionNotSupportedException ex, WebRequest request) {
+        ApiError apiError = new ApiError(HttpStatus.BAD_REQUEST);
+        apiError.setMessage(ex.getMessage()); // Of een meer generieke boodschap, afhankelijk van je voorkeur
+        return new ResponseEntity<>(apiError, HttpStatus.BAD_REQUEST);
+    }
+
 
 }
