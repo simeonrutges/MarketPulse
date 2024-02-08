@@ -1,6 +1,7 @@
 package com.example.MarketPulse.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Type;
 
 import java.util.List;
 
@@ -15,10 +16,31 @@ public class Product {
     private String name;
     private String description;
     private double price;
+    @Column
+    private String fileName;
+    @Lob
+    @Column
+    private byte[] imageData;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User seller;
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public byte[] getImageData() {
+        return imageData;
+    }
+
+    public void setImageData(byte[] imageData) {
+        this.imageData = imageData;
+    }
 
     @OneToMany(mappedBy = "product")
     private List<Review> reviews;

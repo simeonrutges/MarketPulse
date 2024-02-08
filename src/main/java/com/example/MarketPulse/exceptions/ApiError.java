@@ -2,6 +2,9 @@ package com.example.MarketPulse.exceptions;
 
 import org.springframework.http.HttpStatus;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ApiError {
     private HttpStatus status;
     private String message;

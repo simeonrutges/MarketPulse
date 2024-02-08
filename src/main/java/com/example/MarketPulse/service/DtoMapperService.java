@@ -125,6 +125,9 @@ public class DtoMapperService {
         product.setSeller(seller);
         product.setCategory(category);
 
+        product.setFileName(productDto.getFileName());
+        product.setImageData(productDto.getImageData());
+
         return product;
     }
 
@@ -142,6 +145,9 @@ public class DtoMapperService {
         if (product.getCategory() != null) {
             productDto.setCategoryId(product.getCategory().getId());
         }
+
+        productDto.setFileName(product.getFileName());
+        productDto.setImageData(productDto.getImageData());
 
         return productDto;
     }
